@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+django = "*"
+django-model-utils = "*"
+djangorestframework = "*"
+django-filter = "*"
+dj-static = "*"
+psycopg2 = "*"
+dj-database-url = "*"
+django-mptt = "*"
+celery = "*"
+django-leaflet = "*"
+carto = "*"
+social-auth-app-django = "*"
+social-auth-core = {extras = ["django"],version = "*"}
+
+[requires]
+python_version = "3.6"
