@@ -1,0 +1,121 @@
+# Python bytecode:
+*.py[co]
+
+# Packaging files:
+*.egg*
+
+# Private Keys and Certs
+*.pem
+
+# Editor temp files:
+*.swp
+*~
+
+# Sphinx docs:
+build
+
+# SQLite3 database files:
+*.db
+*.sql
+
+# Logs:
+*.log
+
+*idea*
+
+EquiTrack/static/*
+EquiTrack/migration_errors.txt
+static/*
+media
+
+*.dump
+dump.rdb
+.vagrant
+vagrant_ansible_inventory_default
+
+*.cpg
+*.dbf
+*.shp
+*.shx
+
+packer_cache
+*.iso
+*.box
+
+Vagrantfile
+saml/FederationMetadata.xml
+
+*.tar
+
+*.gz
+
+# no keys
+*.key
+*.crt
+
+
+server_config.yaml
+robots/*.png
+robots/log.html
+
+robots/output.xml
+
+robots/report.html
+
+_builds
+_projects
+_steps
+
+celerybeat-schedule
+
+htmlcov
+.coverage
+
+*.bak
+*.dat
+*.dir
+
+config.json
+
+wheelhouse
+
+# Frontend
+.frontend/
+.fe/
+.tmp
+.editorconfig
+Icon
+*.sublime-project
+*.sublime-workspace
+
+assets/frontend/
+templates/frontend/
+/env_prod
+
+deis
+
+env_dev
+
+.env
+.envrc
+
+frontend/
+
+pmp_frontend/
+
+db_dumps/*.bz2
+
+# Sphinx documentation
+docs/_build/
+
+# macOS system meta file
+.DS_Store
+
+# custom settings files
+src/etools/config/settings/custom.py
+
+*secrets.yml
+/dist
+.tox
+.pytest_cache
+coverage.xml

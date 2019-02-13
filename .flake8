@@ -1,0 +1,14 @@
+[flake8]
+max-line-length = 120
+ignore =
+    ; PyFlakes errors
+    ; F405 name may be undefined, or defined from star imports: module
+    F405,
+    ; E501 maximum line length
+    E501,
+    W504
+
+exclude =
+    */migrations,
+    */load_initial_data.py,
+    */publics/management/commands/xml,
