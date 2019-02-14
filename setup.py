@@ -7,7 +7,7 @@ from codecs import open
 from setuptools import setup, find_packages
 
 ROOT = os.path.realpath(os.path.dirname(__file__))
-init = os.path.join(ROOT, 'src', 'unicef_geospacial', '__init__.py')
+init = os.path.join(ROOT, 'src', 'unicef_geospatial', '__init__.py')
 _version_re = re.compile(r'__version__\s+=\s+(.*)')
 _name_re = re.compile(r'NAME\s+=\s+(.*)')
 

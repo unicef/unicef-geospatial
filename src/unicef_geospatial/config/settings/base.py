@@ -22,7 +22,7 @@ INSTALLED_APPS = (
     'unicef_geo.categories',
     'unicef_geo.countries',
     'unicef_geo.locations',
-    'unicef_geospacial.apps.core',
+    'unicef_geospatial.apps.core',
 )
 # DJANGO: SECURITY
 ALLOWED_HOSTS = [
@@ -62,7 +62,7 @@ MIDDLEWARE = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     # 'corsheaders.middleware.CorsMiddleware',
 )
-WSGI_APPLICATION = 'unicef_geospacial.config.wsgi.application'
+WSGI_APPLICATION = 'unicef_geospatial.config.wsgi.application'
 
 
 TEMPLATES = [
@@ -94,7 +94,7 @@ TEMPLATES = [
     },
 ]
 # DJANGO: URLS
-ROOT_URLCONF = 'unicef_geospacial.config.urls'
+ROOT_URLCONF = 'unicef_geospatial.config.urls'
 
 # CONTRIB: AUTH
 AUTHENTICATION_BACKENDS = (

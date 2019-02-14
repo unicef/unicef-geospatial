@@ -11,19 +11,16 @@ class LocationAdmin(LeafletGeoAdmin, MPTTModelAdmin):
     fields = [
         'name',
         'country',
-        'admin_level',
         'p_code',
         'point',
     ]
     list_display = (
         'name',
         'country',
-        'admin_level',
         'p_code',
         'is_active',
     )
     list_filter = (
-        'admin_level',
         'parent',
     )
     search_fields = ('name', 'p_code',)

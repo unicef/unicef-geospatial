@@ -20,7 +20,7 @@ class Location(GeoModelMixin):
     point = models.PointField(verbose_name=_("Point"), null=True, blank=True)
 
     def __str__(self):
-        return f'{self.name} ({self.get_admin_level_display()}: {self.p_code})'
+        return f'{self.name}: {self.p_code})'
 
     class Meta:
         unique_together = ('name', 'p_code')

@@ -11,27 +11,18 @@ from unicef_geo.countries.models import Country
 
 class GeoModelMixin(MPTTModel, TimeStampedModel):
 
-    ONE = 1
-    TWO = 2
-    THREE = 3
-    FOUR = 4
-    ADMIN_LEVEL = (
-        (ONE, 'Level 1'),
-        (TWO, 'Level 2'),
-        (THREE, 'Level 3'),
-        (FOUR, 'Level 4'),
-    )
     uuid = models.UUIDField(blank=False, editable=False, default=uuid.uuid4, help_text=_('Unique id'))
     name = models.CharField(max_length=127, db_index=True, verbose_name=_('Name'))
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     p_code = models.CharField(verbose_name=_("P Code"), max_length=32, blank=True, null=True)
-    admin_level = models.IntegerField(verbose_name=_('Admin Level'), choices=ADMIN_LEVEL)
     parent = TreeForeignKey('self', verbose_name=_("Parent"), null=True, blank=True,
                             related_name='children', on_delete=models.CASCADE)
 
     is_active = models.BooleanField(verbose_name=_("Active"), default=True, blank=True)
 
     local_name = models.CharField(max_length=127, verbose_name=_('Local Name'), null=True, blank=True)
+    local_name2 = models.CharField(max_length=127, verbose_name=_('Local Name 2'), null=True, blank=True)
+    local_name3 = models.CharField(max_length=127, verbose_name=_('Local Name 3'), null=True, blank=True)
     alternate_name_en1 = models.CharField(max_length=127, verbose_name=_('English Name'), null=True, blank=True)
     alternate_name_en2 = models.CharField(max_length=127, verbose_name=_('English Name 2'), null=True, blank=True)
     alternate_name_en3 = models.CharField(max_length=127, verbose_name=_('English Name 3'), null=True, blank=True)
