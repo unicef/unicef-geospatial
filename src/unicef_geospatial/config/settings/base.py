@@ -35,7 +35,7 @@ DEBUG = True
 
 CONFIG_ROOT = dirname(dirname(abspath(__file__)))
 
-db_config = dj_database_url.config(default='postgis:///geospacial')
+db_config = dj_database_url.config(default='postgis:///geospatial')
 
 ORIGINAL_BACKEND = 'django.contrib.gis.db.backends.postgis'
 db_config['CONN_MAX_AGE'] = 0
@@ -43,9 +43,9 @@ DATABASES = {
     'default': db_config
 }
 DATABASES['default']['USER'] = 'postgres'
-DATABASES['default']['NAME'] = 'geospacial'
+DATABASES['default']['NAME'] = 'geospatial'
 
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/tmp/geospacial/media/')
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/tmp/geospatial/media/')
 MEDIA_URL = '/media/'
 
 LANGUAGE_CODE = 'en-us'

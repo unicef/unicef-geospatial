@@ -1,4 +1,4 @@
-export DBNAME?=geospacial
+export DBNAME?=geospatial
 export DBENGINE?=postgres
 
 help:

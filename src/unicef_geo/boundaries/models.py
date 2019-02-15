@@ -47,7 +47,7 @@ class AdminBoundary(GeoModelMixin):
 
     geom = MultiPolygonField(verbose_name=_("Geometry"), null=True, blank=True, spatial_index=True)
     gender = models.CharField(max_length=15, choices=GENDER)
-    category = models.CharField(max_length=15)
+    # category = models.CharField(max_length=15)
     boundary_type = models.ForeignKey(BoundaryType, on_delete=models.CASCADE)
 
     class Meta:
