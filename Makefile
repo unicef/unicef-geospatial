@@ -19,11 +19,10 @@ help:
 develop: .init-db
 	@if [[ -f ".env" ]]; then echo '.env file found. Do not create it'; else echo "PYTHONPATH=./src:$${PYTHONPATH}" > env; fi
 	pipenv sync -d
-#	pre-commit install
+	pre-commit install
 	@python manage.py init-setup --all
-	@python manage.py init-demo
 
 
 init-demo:
-	@${MAKE} init-setup
+	@${MAKE} develop
 	@python manage.py init-demo
