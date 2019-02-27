@@ -4,20 +4,30 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
+bumpversion = "*"
+pre-commit = "*"
+flake8 = "*"
 
 [packages]
 django = "*"
-django-model-utils = "*"
 djangorestframework = "*"
 django-filter = "*"
-dj-static = "*"
+#dj-static = "*"
 psycopg2 = "*"
-dj-database-url = "*"
-django-mptt = "*"
 celery = "*"
+#social-auth-core = {extras = ["django"],version = "*"}
+django-environ = "*"
+django-constance = {extras = ["db"],version = "*"}
+django-mptt = "*"
 django-leaflet = "*"
-social-auth-app-django = "*"
-social-auth-core = {extras = ["django"],version = "*"}
+django-redis = "*"
+django-picklefield = "*"
+django-model-utils = "*"
+django-admin-json-editor = "*"
+django-impersonate = "*"
+#social-auth-app-django = "*"
+#cryptography = "*"
+dj-static = "*"
 
 [requires]
 python_version = "3.6"

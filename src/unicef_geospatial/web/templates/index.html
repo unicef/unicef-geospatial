@@ -1,0 +1,21 @@
+{% extends 'base.html' %}{% load static  %}
+{% block right %}
+    <h1>GeoSpatial</h1>
+    <ul class="index-menu">
+        {% if request.user.is_anonymous %}
+            <li class="menu-sep h30">&nbsp;</li>
+            <li class="menu-sep h30">&nbsp;</li>
+            <li><a href="{% url "login" %}">Login</a></li>
+        {% else %}
+            <li><a href="{% url "api:api-root" version="latest" %}">API</a></li>
+            {% if request.user.is_staff %}
+                <li class="menu-sep h10">&nbsp;</li>
+                <li><a href="{% url "admin:index" %}">Admin</a></li>
+            {% endif %}
+            <li class="menu-sep h30">&nbsp;</li>
+            <li class="menu-sep h30">&nbsp;</li>
+            <li><a href="{% url "logout" %}">Logout</a></li>
+
+        {% endif %}
+    </ul>
+{% endblock %}
