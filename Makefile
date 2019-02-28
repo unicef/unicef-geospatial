@@ -21,8 +21,4 @@ develop: .init-db
 	pipenv sync -d
 	pre-commit install
 	@python manage.py init-setup --all
-
-
-init-demo:
-	@${MAKE} develop
 	@python manage.py init-demo
