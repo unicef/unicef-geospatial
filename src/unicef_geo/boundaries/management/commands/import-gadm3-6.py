@@ -5,9 +5,7 @@ import re
 from django.core.management.base import BaseCommand
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from unicef_geo.boundaries.models import AdminBoundary, BoundaryType
-from unicef_geo.categories.models import Category, SubCategory
 from unicef_geo.countries.models import Country
-from unicef_geo.locations.models import Location
 import json
 
 class Command(BaseCommand):
