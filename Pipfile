@@ -9,7 +9,7 @@ pre-commit = "*"
 flake8 = "*"
 
 [packages]
-django = "*"
+django = "==2.2b1"
 djangorestframework = "*"
 django-filter = "*"
 #dj-static = "*"
@@ -31,3 +31,6 @@ dj-static = "*"
 
 [requires]
 python_version = "3.6"
+
+[pipenv]
+allow_prereleases = true

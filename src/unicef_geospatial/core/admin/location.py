@@ -8,7 +8,7 @@ from ..models import Location
 
 @register(Location)
 class LocationAdmin(LeafletGeoAdmin):
-    # fields = ['name', 'country', 'p_code', 'point', ]
+
     list_display = ('name', 'country', 'p_code', 'is_active',)
     search_fields = ('name', 'p_code',)
 

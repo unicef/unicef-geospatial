@@ -16,12 +16,14 @@ class BoundaryType(MPTTModel, BaseGeoModel):
     TWO = 2
     THREE = 3
     FOUR = 4
+    FIVE = 5
     ADMIN_LEVEL = (
         (ZERO, 'Level 0'),
         (ONE, 'Level 1'),
         (TWO, 'Level 2'),
         (THREE, 'Level 3'),
         (FOUR, 'Level 4'),
+        (FIVE, 'Level 5'),
     )
 
     description = models.CharField(max_length=15)
