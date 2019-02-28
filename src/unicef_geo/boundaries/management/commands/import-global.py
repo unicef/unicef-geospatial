@@ -9,11 +9,14 @@ from unicef_geo.countries.models import Country
 import json
 
 class Command(BaseCommand):
+    def add_arguments(self, parser):
+        parser.add_argument('shapefileSet', nargs='+', type=str)
+
     def handle(self, *args, **options):
         # In the repository, ./public/gadm3-6/ has a single country folder: AFG
         # However, when running in production, ./public will be mounted with file storage
         # that contains all countries.
-        set = 'gadm3-6'
+        set = options['shapefileSet'][0]
         countries = os.listdir(f'./public/{set}/')
         for iso3 in countries:
             files = os.listdir(f'./public/{set}/{iso3}')
