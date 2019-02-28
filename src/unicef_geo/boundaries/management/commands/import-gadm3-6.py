@@ -16,13 +16,13 @@ class Command(BaseCommand):
         # However, when running in production, ./public will be mounted with file storage
         # that contains all countries.
         set = 'gadm3-6'
-        countries = os.listdir(f"./public/{set}/")
+        countries = os.listdir(f'./public/{set}/')
         for iso3 in countries:
-            files = os.listdir(f"./public/{set}/{iso3}")
+            files = os.listdir(f'./public/{set}/{iso3}')
             # Filter only .shp files
             shapefiles = list(filter(lambda name: '.shp' in name, files))
             for shapefile in shapefiles:
-                tmp = shapefile.split(".shp")
+                tmp = shapefile.split('.shp')
                 adminLevel = tmp[0][-1:]
                 # Open shapefile
                 shps = fiona.open(f'./public/{set}/{iso3}/{shapefile}')
@@ -46,7 +46,7 @@ class Command(BaseCommand):
                         mpolygon['type'] = 'MultiPolygon'
                         mpolygon['coordinates'] = [shp.get('geometry').get('coordinates')]
                         placeName = name=shp.get('properties').get(f'NAME_{adminLevel}')
-                        print(f"Saving {iso3} {adminLevel} {placeName}")
+                        print(f'Saving {iso3} {adminLevel} {placeName}')
                         AdminBoundary.objects.get_or_create(
                         name=placeName,
                         country=ita,
