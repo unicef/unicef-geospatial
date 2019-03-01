@@ -1,3 +1,6 @@
+# This is a first draft of a task to bootstrap the project with
+# admin boundaries from GADM
+
 import json
 import os
 
