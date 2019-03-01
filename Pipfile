@@ -28,6 +28,7 @@ django-impersonate = "*"
 #social-auth-app-django = "*"
 #cryptography = "*"
 dj-static = "*"
+fiona = "*"
 
 [requires]
 python_version = "3.6"

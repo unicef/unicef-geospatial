@@ -21,3 +21,9 @@ Contribute
 
 Quickstart Demo Server
 ----------------------
+
+
+GDM3-6 import
+----------------------
+
+    $ python manage.py import-global gadm3-6
