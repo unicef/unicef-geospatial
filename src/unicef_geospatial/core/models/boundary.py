@@ -7,10 +7,10 @@ from mptt.models import MPTTModel
 
 from .base import BaseGeoModel
 from .country import Country
-from .mixins import NamesMixin
+from .mixins import NamesMixin, TimeFramedMixin
 
 
-class BoundaryType(MPTTModel, BaseGeoModel):
+class BoundaryType(TimeFramedMixin, MPTTModel, BaseGeoModel):
     ZERO = 0
     ONE = 1
     TWO = 2
@@ -41,7 +41,7 @@ class BoundaryType(MPTTModel, BaseGeoModel):
         return f'{self.description} {self.get_admin_level_display()} [{self.country}]'
 
 
-class Boundary(NamesMixin, MPTTModel, BaseGeoModel):
+class Boundary(TimeFramedMixin, NamesMixin, MPTTModel, BaseGeoModel):
 
     COD = 'cod'
     GLOBAL = 'global'

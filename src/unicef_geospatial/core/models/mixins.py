@@ -12,3 +12,11 @@ class NamesMixin(models.Model):
 
     class Meta:
         abstract = True
+
+
+class TimeFramedMixin(models.Model):
+    valid_from = models.DateTimeField(_('start'), null=True, blank=True)
+    valid_to = models.DateTimeField(_('end'), null=True, blank=True)
+
+    class Meta:
+        abstract = True

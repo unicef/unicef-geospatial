@@ -13,7 +13,6 @@ env = environ.Env(
     AZURE_TENANT=(str, ''),
     SECRET_KEY=(str, 'lkjokjlokjlkj'),
     DATABASE_URL=(str, "postgis://postgres:@127.0.0.1:5432/geospatial"),
-    ABSOLUTE_BASE_URL=(str, 'http://localhost:8000'),
     CACHE_URL=(str, "dummycache://"),
     CACHE_URL_LOCK=(str, "dummycache://"),
     STATIC_ROOT=(str, "/tmp/"),
@@ -169,6 +168,8 @@ CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 CONSTANCE_CONFIG = {
     'CACHE_VERSION': (1, '', int),
     'DEFAULT_GROUP': ('Guests', 'Default group new users belong to', 'select_group'),
+    'LOADER_MANDATORY_FIELDS': ('', 'Comma separated list of fields than MUST exists en each shapefile', str)
+
 }
 
 DATA_SCHEMA = {
