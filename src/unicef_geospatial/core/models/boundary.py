@@ -7,10 +7,10 @@ from mptt.models import MPTTModel
 
 from .base import BaseGeoModel
 from .country import Country
-from .mixins import NamesMixin, TimeFramedMixin
+from .mixins import GeoModel, NamesMixin, TimeFramedMixin
 
 
-class BoundaryType(TimeFramedMixin, MPTTModel, BaseGeoModel):
+class BoundaryType(GeoModel, MPTTModel, BaseGeoModel):
     ZERO = 0
     ONE = 1
     TWO = 2
@@ -29,7 +29,6 @@ class BoundaryType(TimeFramedMixin, MPTTModel, BaseGeoModel):
     description = models.CharField(max_length=15)
     admin_level = models.IntegerField(verbose_name=_('Admin Level'), choices=ADMIN_LEVEL)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    is_active = models.BooleanField(verbose_name=_("Active"), default=True)
     parent = TreeForeignKey('self', verbose_name=_("Parent"), null=True, blank=True,
                             related_name='children', on_delete=models.CASCADE)
 

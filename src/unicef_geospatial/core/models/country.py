@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from unicef_geospatial.core.models.base import BaseGeoModel
-from unicef_geospatial.core.models.mixins import TimeFramedMixin
+from unicef_geospatial.core.models.mixins import GeoModel
 
 CONTINENTS = (
     ('AF', _('Africa')),
@@ -16,7 +16,7 @@ CONTINENTS = (
 )
 
 
-class Country(TimeFramedMixin, BaseGeoModel):
+class Country(GeoModel, BaseGeoModel):
     name = models.CharField(max_length=127, db_index=True, verbose_name=_('Name'))
     fullname = models.CharField(max_length=127, db_index=True, verbose_name=_('Full Name'), null=True, blank=True)
     alternate_name = models.CharField(max_length=127, db_index=True, verbose_name=_('Alternate Name'),
@@ -27,7 +27,6 @@ class Country(TimeFramedMixin, BaseGeoModel):
     un_number = models.CharField(max_length=3, verbose_name=_('UN Number'), null=True, blank=True)
 
     continent = models.CharField(choices=CONTINENTS, max_length=2)
-    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name_plural = _('Countries')

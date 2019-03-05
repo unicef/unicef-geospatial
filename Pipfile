@@ -29,6 +29,12 @@ django-impersonate = "*"
 #cryptography = "*"
 dj-static = "*"
 fiona = "*"
+django-fsm = "*"
+django-fsm-admin = "*"
+django-fsm-log = "*"
+django-crashlog = "*"
+requests = "*"
+admin-extra-urls = "*"
 
 [requires]
 python_version = "3.6"
