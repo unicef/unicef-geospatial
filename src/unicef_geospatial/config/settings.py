@@ -13,7 +13,6 @@ env = environ.Env(
     AZURE_TENANT=(str, ''),
     SECRET_KEY=(str, 'lkjokjlokjlkj'),
     DATABASE_URL=(str, "postgis://postgres:@127.0.0.1:5432/geospatial"),
-    ABSOLUTE_BASE_URL=(str, 'http://localhost:8000'),
     CACHE_URL=(str, "dummycache://"),
     CACHE_URL_LOCK=(str, "dummycache://"),
     STATIC_ROOT=(str, "/tmp/"),
@@ -33,7 +32,11 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'mptt',
     'leaflet',
+    'crashlog',
     'constance',
+    'django_fsm',
+    'django_fsm_log',
+    'admin_extra_urls',
     'impersonate',
     'rest_framework',
     'django_admin_json_editor',
@@ -67,11 +70,11 @@ USE_TZ = True
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'unicef_geospatial.state.middleware.StateMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'corsheaders.middleware.CorsMiddleware',
 )
 WSGI_APPLICATION = 'unicef_geospatial.config.wsgi.application'
 
@@ -99,6 +102,7 @@ TEMPLATES = [
                 #                'social_django.context_processors.backends',
                 #                'social_django.context_processors.login_redirect',
                 'unicef_geospatial.web.context_processors.sett',
+                'unicef_geospatial.state.context_processors.state',
 
             ],
         },
@@ -118,7 +122,7 @@ AUTHENTICATION_BACKENDS = (
     # 'social_core.backends.azuread_tenant.AzureADTenantOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
-# AUTH_USER_MODEL = 'users.User'
+# AUTH_USER_MODEL = 'unicef_security.User'
 
 LOGIN_REDIRECT_URL = '/'
 
@@ -169,6 +173,8 @@ CONSTANCE_BACKEND = 'constance.backends.database.DatabaseBackend'
 CONSTANCE_CONFIG = {
     'CACHE_VERSION': (1, '', int),
     'DEFAULT_GROUP': ('Guests', 'Default group new users belong to', 'select_group'),
+    'LOADER_MANDATORY_FIELDS': ('', 'Comma separated list of fields than MUST exists en each shapefile', str)
+
 }
 
 DATA_SCHEMA = {
