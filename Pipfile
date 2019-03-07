@@ -35,6 +35,7 @@ django-fsm-log = "*"
 django-crashlog = "*"
 requests = "*"
 admin-extra-urls = "*"
+django-crispy-forms = "*"
 
 [requires]
 python_version = "3.6"
