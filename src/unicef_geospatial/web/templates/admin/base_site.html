@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}{% load static datamart %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="{% static 'dm-admin.css' %}?_={% version %}">
+{% endblock %}
+{% block branding %}
+    <h1 id="site-name"><a href="{% url 'admin:index' %}">{{ site_header|default:_('Django administration') }}</a></h1>
+{% endblock %}
+
+{% block userlinks %}
+    {{ block.super }}
+    {% if user.is_superuser %}
+        {% url 'sys-admin-info' as sysinfo %}
+        {% if sysinfo %}
+            / <a href="{{ sysinfo }}">Sys Infos</a>
+        {% endif %}
+        / <a href="javascript:document.cookie='old_index_style={{ index_style }}; path=/';window.location.reload(true);">Switch index</a>
+        {% if user.is_impersonate %}
+            <a href="{% url 'impersonate-stop' %}">Back to {{ request.real_user }}</a>
+        {% endif %}
+    {% endif %}
+{% endblock %}
+{% block nav-global %}{% endblock %}
+{#{% block footer %}#}
+{#    <div id="footer">#}
+{#        <div style="float:right">#}
+{#            <a href="javascript:document.cookie='old_index_style={{ index_style }}; path=/';window.location.reload(true);">Switch index</a>#}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}

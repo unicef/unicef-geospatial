@@ -28,7 +28,9 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.gis',
     'django.contrib.postgres',
-    'django.contrib.admin',
+    # 'django.contrib.admin',
+    'unicef_geospatial.config.admin.AdminConfig',
+
     'django.contrib.humanize',
     'mptt',
     'leaflet',
