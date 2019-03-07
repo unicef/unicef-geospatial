@@ -30,10 +30,12 @@ class CreatorUserField(CurrentUserField):
         super().__init__(**kwargs)
 
     def get_db_prep_save(self, value, connection):
-        if value is None or (value == ''):
-            return state.request.user.pk
-        return super().get_db_prep_save(value, connection)
-
+        try:
+            if value is None or (value == ''):
+                return state.request.user.pk
+            return super().get_db_prep_save(value, connection)
+        except Exception:
+            return None
 
 class ModifierUserField(CurrentUserField):
     def __init__(self, **kwargs):
