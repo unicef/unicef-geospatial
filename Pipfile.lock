@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1d0d45f34ac7ee73da933976212c349fb780e9230281bca80916e441c71bdaae"
+            "sha256": "b70a396d655e56d170947ccb98fb87025e60c1b9046220ec0844b0cf753fec3a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -271,6 +271,13 @@
             ],
             "version": "==2.3.2"
         },
+        "onedrivesdk": {
+            "hashes": [
+                "sha256:922037d226dd374ab5a28379c45322cbc15f4d77f5117e9904599fdba05f6054"
+            ],
+            "index": "pypi",
+            "version": "==1.1.8"
+        },
         "psycopg2": {
             "hashes": [
                 "sha256:02445ebbb3a11a3fe8202c413d5e6faf38bb75b4e336203ee144ca2c46529f94",
@@ -328,6 +335,13 @@
             ],
             "index": "pypi",
             "version": "==2.21.0"
+        },
+        "sharepy": {
+            "hashes": [
+                "sha256:51cd932ad5602c4e279927fc61d472a05432d9d93627b979b8dd580ac6d198a8"
+            ],
+            "index": "pypi",
+            "version": "==1.3.0"
         },
         "six": {
             "hashes": [

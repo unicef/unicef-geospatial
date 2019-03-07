@@ -35,6 +35,8 @@ django-fsm-log = "*"
 django-crashlog = "*"
 requests = "*"
 admin-extra-urls = "*"
+sharepy = "*"
+onedrivesdk = "*"
 
 [requires]
 python_version = "3.6"
