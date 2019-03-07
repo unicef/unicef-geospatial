@@ -7,6 +7,7 @@ verify_ssl = true
 bumpversion = "*"
 pre-commit = "*"
 flake8 = "*"
+isort = "*"
 
 [packages]
 django = "==2.2b1"
@@ -35,6 +36,7 @@ django-fsm-log = "*"
 django-crashlog = "*"
 requests = "*"
 admin-extra-urls = "*"
+drf-yasg = "*"
 django-crispy-forms = "*"
 
 [requires]
