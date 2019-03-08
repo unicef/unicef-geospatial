@@ -21,6 +21,19 @@ repos:
         always_run: true
         stages: [manual]
 
+      - id: flake8
+        args:
+        - src/
+        - tests/
+        - --config=.flake8
+        name: flake8
+        entry: flake8
+        language: system
+        types: [python]
+        files: '^$'
+        always_run: true
+        stages: [commit]
+
 -   repo: git://github.com/pre-commit/pre-commit-hooks
     rev: v2.0.0
     hooks:
@@ -29,12 +42,6 @@ repos:
         stages: [commit]
 
 #    -   id: end-of-file-fixer
-    -   id: flake8
-        args:
-        - src/
-        - tests/
-        - --config=.flake8
-        stages: [commit]
 
     -   id: check-merge-conflict
         stages: [commit]

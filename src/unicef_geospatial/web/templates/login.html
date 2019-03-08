@@ -1,20 +1,23 @@
-{% extends 'base.html' %}{% load static %}
+{% extends 'base.html' %}{% load static  %}
 
 {% block title %}Login{% endblock %}
 
 {% block right %}
-<div class="center" id="login-menu">
+{#<div class="center" id="login-menu">#}
 {#    <div>#}
 {#        <h2><a href="{% url "social:begin" "azuread-tenant-oauth2" %}">Login with Azure</a></h2>#}
 {#    </div>#}
 {#    <div><h4>OR</h4></div>#}
-    <div>
-        <h4><a id="local-login" href="#">Local Account login</a></h4>
-    </div>
-</div>
-<div style="display: none" id="login-form">
+{#    <div>#}
+{#        <h4><a id="local-login" href="#">Local Account login</a></h4>#}
+{#    </div>#}
+{#</div>#}
+<div id="login-form">
     <form class="validate-form" method="post">
         {% csrf_token %}
+        <ul class="error">{% for t, m in form.errors.items %}
+            <li>{{ m }}</li>
+        {% endfor %}</ul>
         <span class="login100-form-title p-b-34">Account Login</span>
         <div class="wrap-input100 validate-input m-b-20" data-validate="Type user name">
             <input id="first-name" class="input100" type="text" name="username" placeholder="User name">
