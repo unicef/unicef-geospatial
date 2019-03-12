@@ -15,7 +15,8 @@ env = environ.Env(
     DATABASE_URL=(str, "postgis://postgres:@127.0.0.1:5432/geospatial"),
     CACHE_URL=(str, "dummycache://"),
     CACHE_URL_LOCK=(str, "dummycache://"),
-    STATIC_ROOT=(str, "/tmp/"),
+    STATIC_ROOT=(str, "./~build/static"),
+    MEDIA_ROOT=(str, "./~build/media"),
 )
 
 SECRET_KEY = env('SECRET_KEY')
@@ -29,9 +30,10 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'django.contrib.postgres',
     # 'django.contrib.admin',
+    # 'bootstrap_admin',
     'unicef_geospatial.config.admin.AdminConfig',
-
     'django.contrib.humanize',
+    'crispy_forms',
     'mptt',
     'leaflet',
     'crashlog',
@@ -61,7 +63,7 @@ DATABASES = {
 DATABASES['default']['USER'] = 'postgres'
 DATABASES['default']['NAME'] = 'geospatial'
 
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/tmp/geospatial/media/')
+MEDIA_ROOT = env('MEDIA_ROOT')
 MEDIA_URL = '/media/'
 
 LANGUAGE_CODE = 'en-us'

@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}{% load static crispy_forms_filters i18n %}
+{% block extrahead %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+{% endblock %}
+
+
+{% block content %}
+    <p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% block form %}
+            {{ wizard.management_form }}
+            {{ wizard.form|crispy }}
+        {% endblock form %}
+        {% if wizard.steps.prev %}
+            <button class="btn btn-large btn-primary"
+                    name="wizard_goto_step" type="submit"
+                    value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+            <button class="btn btn-large btn-primary"
+                    name="wizard_goto_step" type="submit"
+                    value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+        {% endif %}
+        <button class="btn btn-large btn-primary"
+                name="wizard_goto_step" type="submit"
+                value="submit">{% trans "Next Step" %}</button>
+    </form>
+{% endblock content %}
+

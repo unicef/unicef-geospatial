@@ -8,6 +8,7 @@ bumpversion = "*"
 pre-commit = "*"
 flake8 = "*"
 isort = "*"
+pdbpp = "*"
 
 [packages]
 django = "==2.2b1"
