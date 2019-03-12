@@ -1,4 +1,4 @@
-from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.gis.db.models import MultiPolygonField, Q
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -26,7 +26,7 @@ class BoundaryType(GeoModel, MPTTModel, BaseGeoModel):
         (FIVE, 'Level 5'),
     )
 
-    description = models.CharField(max_length=15)
+    description = models.CharField(max_length=250)
     admin_level = models.IntegerField(verbose_name=_('Admin Level'), choices=ADMIN_LEVEL)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     parent = TreeForeignKey('self', verbose_name=_("Parent"), null=True, blank=True,
@@ -40,8 +40,7 @@ class BoundaryType(GeoModel, MPTTModel, BaseGeoModel):
         return f'{self.description} {self.get_admin_level_display()} [{self.country}]'
 
 
-class Boundary(TimeFramedMixin, NamesMixin, MPTTModel, BaseGeoModel):
-
+class Boundary(GeoModel, NamesMixin, MPTTModel, BaseGeoModel):
     COD = 'cod'
     GLOBAL = 'global'
 
@@ -59,13 +58,15 @@ class Boundary(TimeFramedMixin, NamesMixin, MPTTModel, BaseGeoModel):
     parent = TreeForeignKey('self', verbose_name=_("Parent"), null=True, blank=True,
                             related_name='children', on_delete=models.CASCADE)
 
-    is_active = models.BooleanField(verbose_name=_("Active"), default=True, blank=True)
-
     def __str__(self):
         return f'{self.name} [{self.country}]'
 
     class Meta:
         verbose_name_plural = _('Admin Boundaries')
+        constraints = [models.UniqueConstraint(fields=['p_code', 'country', 'level', 'active'],
+                                               name='unique_active_pcode',
+                                               condition=Q(active=True)),
+                       ]
 
     def clean(self):
         # check that boundary_type and parent belong same country

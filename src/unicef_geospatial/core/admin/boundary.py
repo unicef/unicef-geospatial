@@ -17,5 +17,6 @@ class BoundaryTypeAdmin(LeafletGeoAdmin, MPTTModelAdmin):
 @register(Boundary)
 class BoundaryAdmin(LeafletGeoAdmin, MPTTModelAdmin):
     search_fields = ('name', 'p_code', 'iso_code_3')
-    list_display = ('name', 'country', 'p_code', 'gender')
-    list_filter = ('country',)
+    list_display = ('name', 'country', 'p_code', 'active', 'boundary_type')
+    list_filter = ('country', 'active', 'boundary_type__level')
+    date_hierarchy = 'valid_from'

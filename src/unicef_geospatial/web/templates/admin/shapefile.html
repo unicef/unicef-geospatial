@@ -1,0 +1,31 @@
+{% extends "admin/change_form.html" %}{% load static  i18n admin_urls json %}
+{% block extrahead %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+{% endblock %}
+{% block breadcrumbs %}
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+        &rsaquo; {% if has_view_permission %}
+        <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}
+        {{ opts.verbose_name_plural|capfirst }}{% endif %}
+        &rsaquo; <a href="{% url opts|admin_urlname:'change' original.pk %}">{{ original }}</a>
+        &rsaquo; Shape content
+    </div>
+{% endblock %}
+
+
+{% block content %}
+    <ol>
+        {% for name, meta in files.items %}
+            <li>{{ name }}</li>
+            <ul>
+                {% for k, v in meta.items %}
+                    <li>{{ k }}: <pre>{{ v|pretty }}</pre></li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ol>
+{% endblock content %}
+

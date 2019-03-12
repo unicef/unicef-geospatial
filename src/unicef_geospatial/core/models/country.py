@@ -1,4 +1,3 @@
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -16,6 +15,20 @@ CONTINENTS = (
 )
 
 
+class CountryManager(models.Manager):
+    def get_by_code(self, code):
+        try:
+            filters = {'un_number': int(code)}
+        except ValueError:
+            if len(code) == 2:
+                filters = {'iso_code_2': code}
+            elif len(code) == 3:
+                filters = {'iso_code_3': code}
+            else:
+                raise ValueError('Invalid country code %s' % code)
+        return self.get(**filters)
+
+
 class Country(GeoModel, BaseGeoModel):
     name = models.CharField(max_length=127, db_index=True, verbose_name=_('Name'))
     fullname = models.CharField(max_length=127, db_index=True, verbose_name=_('Full Name'), null=True, blank=True)
@@ -27,6 +40,8 @@ class Country(GeoModel, BaseGeoModel):
     un_number = models.CharField(max_length=3, verbose_name=_('UN Number'), null=True, blank=True)
 
     continent = models.CharField(choices=CONTINENTS, max_length=2)
+
+    objects = CountryManager()
 
     class Meta:
         verbose_name_plural = _('Countries')

@@ -1,0 +1,9 @@
+{% extends "admin/upload_wizard_base.html" %}
+{% block form %}
+    {{ wizard.management_form }}
+    {{ wizard.form.management_form }}
+    {% for f in wizard.form %}
+        <div>{{ f }}</div>
+    {% endfor %}
+{% endblock form %}
+
