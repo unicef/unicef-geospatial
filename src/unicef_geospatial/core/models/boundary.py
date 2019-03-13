@@ -26,7 +26,7 @@ class BoundaryType(GeoModel, MPTTModel, BaseGeoModel):
         (FIVE, 'Level 5'),
     )
 
-    description = models.CharField(max_length=250)
+    name = models.CharField(max_length=250)
     admin_level = models.IntegerField(verbose_name=_('Admin Level'), choices=ADMIN_LEVEL)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
     parent = TreeForeignKey('self', verbose_name=_("Parent"), null=True, blank=True,
@@ -37,7 +37,7 @@ class BoundaryType(GeoModel, MPTTModel, BaseGeoModel):
         super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
-        return f'{self.description} {self.get_admin_level_display()} [{self.country}]'
+        return f'{self.name} {self.get_admin_level_display()} [{self.country}]'
 
 
 class Boundary(GeoModel, NamesMixin, MPTTModel, BaseGeoModel):

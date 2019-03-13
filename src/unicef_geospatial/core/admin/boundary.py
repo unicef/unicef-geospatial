@@ -10,7 +10,7 @@ from ..models import Boundary
 
 @register(BoundaryType)
 class BoundaryTypeAdmin(LeafletGeoAdmin, MPTTModelAdmin):
-    list_display = ('description', 'country', 'parent')
+    list_display = ('name', 'country', 'parent')
     list_filter = ('country', 'admin_level')
 
 

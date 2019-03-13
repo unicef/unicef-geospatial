@@ -24,6 +24,7 @@ class TimeFramedQuerySet(QuerySet):
         values = kwargs.pop('values')
         values['active'] = True
         values['valid_to'] = None
+        values['valid_from'] = timezone.now()
         filters = dict(kwargs)
         # TODO: remove me
         print(111, "mixins.py:29", 9999, "filters:", filters)

@@ -1,0 +1,10 @@
+{% extends "upload/base.html" %}
+{% block page %}
+    <h1>Summary</h1>
+    {{ object }}
+    {% for saved in saved_list %}
+        <div>{{ saved }}</div>
+    {% endfor %}
+
+    <a href="{">Run</a>
+{% endblock page %}
