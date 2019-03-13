@@ -1,0 +1,21 @@
+{% extends "upload/base.html" %}{% load crispy_forms_filters %}
+{% block form %}
+    {{ wizard.management_form }}
+    {{ wizard.form.management_form }}
+        <div class=" row col-12">
+            <div class="col-3">Database field</div>
+            <div class="col-3">Shapefile attribute</div>
+            <div class="col-2">Is a fixed value</div>
+            <div class="col-2">Mandatory</div>
+        </div>
+    {% for f in wizard.form %}
+        <div class=" row col-12">
+            <div class="col-3">{{ f.geo_field|as_crispy_field }}</div>
+            <div class="col-3">{{ f.shape_field|as_crispy_field }}</div>
+            <div class="col-2">{{ f.is_value|as_crispy_field }}</div>
+            <div class="col-2">{{ f.mandatory|as_crispy_field }}</div>
+            <div class="hidden">{{ f.id }}</div>
+        </div>
+    {% endfor %}
+{% endblock form %}
+

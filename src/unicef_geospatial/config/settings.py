@@ -17,6 +17,7 @@ env = environ.Env(
     CACHE_URL_LOCK=(str, "dummycache://"),
     STATIC_ROOT=(str, "./~build/static"),
     MEDIA_ROOT=(str, "./~build/media"),
+    BASE_WORK_DIR=(str, "./~build/workdir")
 )
 
 SECRET_KEY = env('SECRET_KEY')
@@ -220,3 +221,9 @@ SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = env.str('AZURE_CLIENT_SECRET')
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = env.str('AZURE_TENANT')
 SOCIAL_AUTH_AZUREAD_OAUTH2_KEY = env.str('AZURE_CLIENT_ID')
 SOCIAL_AUTH_AZUREAD_OAUTH2_RESOURCE = 'https://graph.microsoft.com/'
+
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_FAIL_SILENTLY = not env.bool('DEBUG', False)
+
+BASE_WORK_DIR = env('BASE_WORK_DIR')

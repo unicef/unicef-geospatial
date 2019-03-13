@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><!DOCTYPE html>{% load static version %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title|default_if_none:"GeoSpatial" }}</title>
+    {% block head %}
+        <link rel="icon" type="image/ico" href="{% static 'favicon.ico' %}">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}?_={% version %}">
+    {% endblock head %}
+</head>
+<body class="{{ page }}">
+
+{% block body %}
+
+{% block header %}
+
+{% endblock header %}
+{% block content %}
+    <div class="limiter">
+        <div class="master-container">
+            <div class="box">
+                <div class="right">
+                    {% block right %}
+                    {% endblock right %}
+
+                </div>
+                {% block left %}
+                    <div class="left">
+                        <img width="600" src="{% static 'unicef_logo2.png' %}">
+                    </div>
+                {% endblock left %}
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+{% endblock %}
+
+{% block footer %}
+    <hr/>
+    <div style="float: left;padding: 10px">
+        {{ state.request.user }}
+        {% if request.user.is_impersonate %}
+            [<a href="{% url 'impersonate-stop' %}">Back to {{ request.real_user }}</a>]
+        {% endif %}
+
+    </div>
+    <div style="float: right;padding: 10px">
+        Version: {% version %}
+    </div>
+{% endblock footer %}
+{% block bottom_scripts %}
+{% endblock %}
+
+</body>
+</html>
+</title>
+</head>
+<body>
+
+</body>
+</html>
