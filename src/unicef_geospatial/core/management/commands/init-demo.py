@@ -17,7 +17,8 @@ class Command(BaseCommand):
                                                    parent=public)
         hospital, _ = Category.objects.get_or_create(name="Hospital", parent=public)
         ita, _ = Country.objects.get_or_create(name="Italy", iso_code_2='IT', iso_code_3='ITA')
-        moz, _ = Country.objects.get_or_create(name="Mozambique", iso_code_2='MO', iso_code_3='MOZ')
+        # moz, _ = Country.objects.get_or_create(name="Mozambique",
+        #                                        iso_code_2='MZ', iso_code_3='MOZ')
         region, _ = BoundaryType.objects.get_or_create(admin_level=BoundaryType.ONE,
                                                        country=ita)
         Boundary.objects.get_or_create(name="Lazio",

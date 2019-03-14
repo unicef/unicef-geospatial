@@ -8,8 +8,10 @@
             <div class="col-2">Is a fixed value</div>
             <div class="col-2">Mandatory</div>
         </div>
+    {{ wizard.form.non_form_errors }}
     {% for f in wizard.form %}
         <div class=" row col-12">
+        <div class="col-12 red">{% for k,e in f.errors.items  %}{{ e }}{% endfor %}</div>
             <div class="col-3">{{ f.geo_field|as_crispy_field }}</div>
             <div class="col-3">{{ f.shape_field|as_crispy_field }}</div>
             <div class="col-2">{{ f.is_value|as_crispy_field }}</div>

@@ -4,11 +4,12 @@ import tempfile
 from collections import OrderedDict
 from zipfile import ZipFile
 
+from cfgv import ValidationError
 from django import forms
 from django.conf import settings
 from django.contrib.admin.options import get_content_type_for_model
 from django.core.files.storage import FileSystemStorage
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.views.generic import DetailView
@@ -24,6 +25,7 @@ from unicef_geospatial.core.forms.upload import (
     UploadForm,
 )
 from unicef_geospatial.core.models import Country, Upload, UploadFieldMap, UploadProcessor
+from unicef_geospatial.core.models.upload import sane_repr
 from unicef_geospatial.state import state
 
 
@@ -32,6 +34,18 @@ def index(request):
     return TemplateResponse(request, 'index.html', context)
 
 
+class FieldMapInlineFormSet(BaseInlineFormSet):
+    def clean(self):
+        self.validate_unique()
+        if hasattr(self, 'cleaned_data'):
+            provided = set([k.get('geo_field','') for k in self.cleaned_data])
+            required = {'country', 'level', 'parent'}
+            missing = required - provided
+            if missing:
+                raise forms.ValidationError("Missing required field %s" % sane_repr(missing))
+
+
+COL_MAPPING = 10
 
 
 def form_list_factory(levels=5):
@@ -46,13 +60,14 @@ def form_list_factory(levels=5):
         form_list.append(['fields:%s' % i, inlineformset_factory(UploadProcessor,
                                                                  UploadFieldMap,
                                                                  form=UploadFieldMapForm,
+                                                                 formset=FieldMapInlineFormSet,
                                                                  fields=('geo_field',
                                                                          'shape_field',
                                                                          'is_value',
                                                                          'mandatory'),
                                                                  # check get_form_initial()
                                                                  # when change `extra`
-                                                                 extra=5)])
+                                                                 extra=COL_MAPPING)])
 
         conditions['config:%s' % i] = True
         conditions['fields:%s' % i] = True
@@ -172,6 +187,7 @@ class UploadWizardView(SessionWizardView):
 
     def get_form_initial(self, step):
         initial = self.initial_dict.get(step, {})
+        BASE = {i: {} for i in range(COL_MAPPING)}
         if step not in ['start', 'preview', 'select']:
             t, idx = step.split(":")
             idx = int(idx)
@@ -181,31 +197,29 @@ class UploadWizardView(SessionWizardView):
                                 "pattern_filter": self.storage.data['shapes'][str(idx)]
                                 })
             elif t == 'fields':
-                BASE = {0: {"geo_field": 'country',
-                            "shape_field": 'COUNTRY'},
-                        1: {"geo_field": 'level',
-                            "shape_field": idx},
-                        2: {},
-                        3: {},
-                        4: {},
-                        }
+                BASE[0] = {"geo_field": 'country',
+                           "shape_field": 'COUNTRY'}
+                BASE[1] = {"geo_field": 'level',
+                           "shape_field": idx}
+
                 if idx == 0:
-                    initial.update(dict(BASE))
+                    initial.update(BASE)
                 else:
-                    values = dict(BASE)
-                    values[0] = {"geo_field": 'country',
-                                 "shape_field": self.storage.data.get('country_col', None)}
-                    values[2] = {"geo_field": 'p_code', "shape_field": 'P_CODE'}
-                    values[3] = {"geo_field": 'boundary_type',
-                                 "shape_field": 'ADM%s_PCODE' % idx}
-                    values[4] = {"geo_field": 'parent',
-                                 "shape_field": 'ADM%s_PCODE' % (idx - 1)}
-                    initial.update(values)
+                    BASE[0] = {"geo_field": 'country',
+                               "shape_field": self.storage.data.get('country_col', None)}
+                    BASE[2] = {"geo_field": 'p_code', "shape_field": 'P_CODE'}
+                    BASE[3] = {"geo_field": 'boundary_type',
+                               "shape_field": 'ADM%s_PCODE' % idx}
+                    BASE[4] = {"geo_field": 'parent',
+                               "shape_field": 'ADM%s_PCODE' % (idx - 1)}
+                    initial.update(BASE)
             return initial
 
     def get_form_kwargs(self, step=None):
         if step and step == 'select':
             return {'shapefiles': self.storage.data['shapes']}
+        elif step and 'fields:' in step:
+            return {'queryset': UploadProcessor.objects}
         return super().get_form_kwargs(step)
 
     def get_form(self, step=None, data=None, files=None):
