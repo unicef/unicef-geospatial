@@ -1,3 +1,4 @@
+import errno
 import glob
 import os
 import shutil
@@ -30,7 +31,7 @@ class UploadAdmin(ExtraUrlMixin, ModelAdmin):
 
 @register(UploadProcessor)
 class UploadProcessorAdmin(ExtraUrlMixin, ModelAdmin):
-    list_display = ('pattern_filter',)
+    list_display = ('id', 'upload', 'pattern_filter',)
     form = forms.ModelForm
     inlines = [FieldMapInline]
     readonly_fields = ('state', )

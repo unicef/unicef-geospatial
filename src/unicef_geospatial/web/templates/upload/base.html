@@ -1,5 +1,13 @@
 {% extends "base.html" %}{% load crispy_forms_filters i18n json %}
 {% block page %}
+    <style>
+        ul.errorlist{
+            list-style-type: none;
+            margin:0;
+            color: red;
+            padding: 0;
+        }
+    </style>
     <div class="col-12">
         {% if zipfile %}
             <div class="row p-1"><b>Step </b> {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</div>

@@ -26,13 +26,12 @@ class TimeFramedQuerySet(QuerySet):
         values['valid_to'] = None
         values['valid_from'] = timezone.now()
         filters = dict(kwargs)
-        # TODO: remove me
-        print(111, "mixins.py:29", 9999, "filters:", filters)
-        print(111, "mixins.py:29", 9999, "values:", values)
+        # # TODO: remove me
+        # print(111, "mixins.py:29", 9999, "filters:", filters)
+        # print(111, "mixins.py:29", 9999, "values:", values)
         aaa = self.filter(**filters).update(active=False, valid_to=expired)
-
-        # TODO: remove me
-        print(111, "mixins.py:33", aaa)
+        # # TODO: remove me
+        # print(111, "mixins.py:33", aaa)
         return self.create(**values)
 
 
