@@ -6,5 +6,5 @@
         <div>{{ saved }}</div>
     {% endfor %}
 
-    <a href="{">Run</a>
+    <a href="{% url "run" object.pk %}">Run</a>
 {% endblock page %}

@@ -1,10 +1,11 @@
 import glob
+import io
 import os
 import tempfile
 from collections import OrderedDict
 from zipfile import ZipFile
+import logging
 
-from cfgv import ValidationError
 from django import forms
 from django.conf import settings
 from django.contrib.admin.options import get_content_type_for_model
@@ -12,6 +13,8 @@ from django.core.files.storage import FileSystemStorage
 from django.forms import inlineformset_factory, BaseInlineFormSet
 from django.shortcuts import render
 from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.views.generic import DetailView
 
 import fiona
@@ -38,7 +41,7 @@ class FieldMapInlineFormSet(BaseInlineFormSet):
     def clean(self):
         self.validate_unique()
         if hasattr(self, 'cleaned_data'):
-            provided = set([k.get('geo_field','') for k in self.cleaned_data])
+            provided = set([k.get('geo_field', '') for k in self.cleaned_data])
             required = {'country', 'level', 'parent'}
             missing = required - provided
             if missing:
@@ -200,7 +203,8 @@ class UploadWizardView(SessionWizardView):
                 BASE[0] = {"geo_field": 'country',
                            "shape_field": 'COUNTRY'}
                 BASE[1] = {"geo_field": 'level',
-                           "shape_field": idx}
+                           "shape_field": idx,
+                           "is_value": True}
 
                 if idx == 0:
                     initial.update(BASE)
@@ -208,10 +212,8 @@ class UploadWizardView(SessionWizardView):
                     BASE[0] = {"geo_field": 'country',
                                "shape_field": self.storage.data.get('country_col', None)}
                     BASE[2] = {"geo_field": 'p_code', "shape_field": 'P_CODE'}
-                    BASE[3] = {"geo_field": 'boundary_type',
-                               "shape_field": 'ADM%s_PCODE' % idx}
-                    BASE[4] = {"geo_field": 'parent',
-                               "shape_field": 'ADM%s_PCODE' % (idx - 1)}
+                    BASE[3] = {}
+                    BASE[4] = {}
                     initial.update(BASE)
             return initial
 
@@ -265,8 +267,35 @@ class UploadWizardView(SessionWizardView):
                                                             'saved_list': saved})
 
 
+def getLogger(stream):
+    logger = logging.getLogger('spam_application')
+    logger.setLevel(logging.DEBUG)
+    ch = logging.StreamHandler(stream=stream)
+    ch.setLevel(logging.DEBUG)
+    formatter = logging.Formatter('%(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    return logger
+
+
 class Process(DetailView):
     model = Upload
+    template_name = "upload/run.html"
 
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
+        self.object = self.get_object()
+        stream = io.StringIO()
+        logger = getLogger(stream)
+        for processor in self.object.processors.order_by('pattern_filter'):
+            processor.logger = logger
+            try:
+                url = reverse("admin:core_uploadprocessor_change", args=[processor.pk])
+                logger.info('Starting processor <a href="%s">%s</a>' % (url, processor))
+                processor.process()
+            except Exception as e:
+                logger.error(e)
+                break
+        stream.seek(0)
+        context = self.get_context_data(object=self.object,
+                                        log=stream.read().split("\n"))
+        return self.render_to_response(context)
