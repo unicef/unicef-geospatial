@@ -12,7 +12,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.contrib.postgres.fields import JSONField
-from django.db import models
+from django.db import models, transaction
 from django.utils.functional import cached_property
 
 from django_fsm import FSMField, transition
@@ -100,7 +100,7 @@ class ShapeRowHandler:
         else:
             filters = {'country': self.country,
                        'p_code': self.values.parent,
-                       'boundary_type__level': self.level-1,
+                       'boundary_type__level': self.level - 1,
                        'active': True}
             try:
                 return Boundary.objects.get(**filters)
@@ -118,7 +118,7 @@ class ShapeRowHandler:
             if self.processor.boundary_type_policy == 'get_or_create':
                 parent = BoundaryType.objects.get(country=self.country,
                                                   active=True,
-                                                  admin_level=self.level-1)
+                                                  admin_level=self.level - 1)
                 ret = BoundaryType.objects.create(country=self.country,
                                                   active=True,
                                                   parent=parent,
@@ -213,166 +213,72 @@ class UploadProcessor(models.Model):
     def field_map(self):
         return FieldMap(self.fields)
 
-    # def _get_shape_field(self, fieldname):
-    #     try:
-    #         field_map = self.field_map[fieldname]
-    #     except KeyError:
-    #         raise Exception("Cannot find field '%s' in FieldMap" % fieldname)
-    #
-    #     if field_map.is_value:
-    #         return field_map.shape_field
-    #     else:
-    #         if field_map.mandatory:
-    #             try:
-    #                 return self.current_record[field_map.shape_field]
-    #             except:
-    #                 raise Exception(
-    #                     "Cannot find column '%s'in Shapefile. It ios the map of %s" % (field_map.shape_field,
-    #                                                                                    field_map.geo_field))
-    #         else:
-    #             return self.current_record.get(field_map.shape_field)
-
-    # def _get_parent(self):
-    #     pass
-
-    # def _get_type_by_col(self):
-    #     boundary_type_fields = dict(country=self.current_country, admin_level=self.current_level)
-    #     try:
-    #         return BoundaryType.objects.get(**boundary_type_fields)
-    #     except BoundaryType.DoesNotExist:
-    #         if self.boundary_type_policy == 'get_or_create':
-    #             boundary_type_fields['name'] = '%s #%s' % (self.current_country, self.current_level)
-    #             return BoundaryType.objects.create(**boundary_type_fields)
-    #     except Exception as e:
-    #         # TODO: remove me
-    #         print(111, "upload.py:107", boundary_type_fields)
-    #         print(111, e)
-    #         sys.exit(1)
-    #     raise ValueError('Not enough info to aut create country')
-
-    # def get_country(self):
-    #     try:
-    #         f = self.field_map['country']
-    #     except KeyError:
-    #         raise ValueError("Cannot find 'country' in %s FieldMap. It contains %s" % (self, repr(self.field_map)))
-    #     col_value = self.current_record[f.shape_field]
-    #     try:
-    #         return Country.objects.get_by_code(col_value)
-    #     except Country.DoesNotExist:
-    #         if self.country_policy == 'get_or_create':
-    #             country_fields = {}
-    #             for k, v in self.field_map.items():
-    #                 if k.startswith('country__'):
-    #                     country_fields[k[9:]] = self._get_shape_field(k)
-    #
-    #             return Country.objects.get_or_create(**country_fields)[0]
-    #     raise ValueError('Not enough info to aut create country')
-
     @transition(field=state, source=['*'], target='in progress')
     def process(self):
         workdir = None
         objects = []
-        try:
-            filepath = self.upload.file.path
-            if not os.path.isfile(filepath):
-                raise Exception('Error processing %s. File not found: %s' % (self, filepath))
+        with transaction.atomic():
+            try:
+                filepath = self.upload.file.path
+                if not os.path.isfile(filepath):
+                    raise Exception('Error processing %s. File not found: %s' % (self, filepath))
 
-            with ZipFile(filepath, 'r') as zip_ref:
-                self.logger.info('Processing %s' % filepath)
-                workdir = tempfile.mkdtemp(dir=settings.BASE_WORK_DIR)
-                zip_ref.extractall(workdir)
-                self.logger.debug('Unzipping %s to %s' % (filepath, workdir))
-                targets = glob.glob(f'{workdir}/{self.pattern_filter}', recursive=True)
-                files = {}
-                local_field_names = [f.name for f in Boundary._meta.get_fields()]
-                for target in targets:
-                    self.logger.debug('Processing %s' % target)
-                    with fiona.Env():
-                        with fiona.open(target) as collection:
-                            files[target] = {'meta': collection.meta,
-                                             'count': len(collection),
-                                             'local_field_names': local_field_names,
-                                             'records': []}
-                            for key, item in collection.items():
-                                self.current_record = ShapeRowHandler(self, item)
-                                filters = {'country': self.current_record.country,
-                                           'boundary_type': self.current_record.boundary_type,
-                                           'p_code': self.current_record.values.p_code
-                                           }
+                with ZipFile(filepath, 'r') as zip_ref:
+                    self.logger.info('Processing %s' % filepath)
+                    workdir = tempfile.mkdtemp(dir=settings.BASE_WORK_DIR)
+                    zip_ref.extractall(workdir)
+                    self.logger.debug('Unzipping %s to %s' % (filepath, workdir))
+                    targets = glob.glob(f'{workdir}/{self.pattern_filter}', recursive=True)
+                    files = {}
+                    local_field_names = [f.name for f in Boundary._meta.get_fields()]
+                    for target in targets:
+                        self.logger.debug('Processing %s' % target)
+                        with fiona.Env():
+                            with fiona.open(target) as collection:
+                                files[target] = {'meta': collection.meta,
+                                                 'count': len(collection),
+                                                 'local_field_names': local_field_names,
+                                                 'records': []}
+                                for key, item in collection.items():
+                                    self.current_record = ShapeRowHandler(self, item)
+                                    filters = {'country': self.current_record.country,
+                                               'boundary_type': self.current_record.boundary_type,
+                                               'p_code': self.current_record.values.p_code
+                                               }
 
-                                values = {'country': self.current_record.country,
-                                          'boundary_type': self.current_record.boundary_type,
-                                          'p_code': self.current_record.values.p_code,
-                                          'parent': self.current_record.parent,
-                                          }
-                                for k, v in self.field_map.items():
-                                    if k in local_field_names:
-                                        values.setdefault(k, getattr(self.current_record.values, k))
+                                    values = {'country': self.current_record.country,
+                                              'boundary_type': self.current_record.boundary_type,
+                                              'p_code': self.current_record.values.p_code,
+                                              'parent': self.current_record.parent,
+                                              }
+                                    for k, v in self.field_map.items():
+                                        if k in local_field_names:
+                                            values.setdefault(k, getattr(self.current_record.values, k))
 
-                                gtype = item['geometry']['type']
-                                if gtype == 'Polygon':
-                                    values['geom'] = GEOSGeometry(json.dumps({
-                                        'type': 'MultiPolygon',
-                                        'coordinates': item['geometry']['coordinates']
-                                    }))
-                                else:
-                                    self.logger.error("Geometry type '%s' not supported" % gtype)
-                                    # raise NotImplementedError("Geometry type '%s' not supported" % gtype)
+                                    gtype = item['geometry']['type']
+                                    if gtype == 'Polygon':
+                                        values['geom'] = GEOSGeometry(json.dumps({
+                                            'type': 'MultiPolygon',
+                                            'coordinates': item['geometry']['coordinates']
+                                        }))
+                                    else:
+                                        self.logger.error("Geometry type '%s' not supported" % gtype)
+                                        # raise NotImplementedError("Geometry type '%s' not supported" % gtype)
 
-                                self.logger.debug("Deactivating %s" % repr(filters))
-                                self.logger.debug("Adding/Updating %s" % repr(values))
-                                object = Boundary.timeframes.deactivate(**filters, values=values)
-                                objects.append(object)
-        except Exception as e:
-            raise
-        finally:
-            if workdir:
-                try:
-                    shutil.rmtree(workdir)  # delete directory
-                except OSError as exc:
-                    if exc.errno != errno.ENOENT:  # ENOENT - no such file or directory
-                        raise  # re-raise exception
+                                    self.logger.debug("Deactivating %s" % repr(filters))
+                                    self.logger.debug("Adding/Updating %s" % repr(values))
+                                    object = Boundary.timeframes.deactivate(**filters, values=values)
+                                    objects.append(object)
+            except Exception as e:
+                raise
+            finally:
+                if workdir:
+                    try:
+                        shutil.rmtree(workdir)  # delete directory
+                    except OSError as exc:
+                        if exc.errno != errno.ENOENT:  # ENOENT - no such file or directory
+                            raise  # re-raise exception
         return objects
-        # with fiona.Env():
-        #     with fiona.open(self.filename) as collection:
-        #         info = {'shapefile': {'meta': collection.meta,
-        #                               'elements': len(collection)}}
-        #
-        #         for key, item in collection.items():
-        #             props = item['properties']
-        #             COUNTRY = get_country(props)
-        #             level = self._get_shape_field('level', props)
-        #             # TODO: remove me
-        #             print(111, "upload.py:79", props)
-        #             print(111, "upload.py:79", level, COUNTRY)
-
-        # values = {'country': COUNTRY, 'level': self.level}
-        # for field_map in self.fields:
-        #     values[field_map.geo_field] = props[field_map.shape_field]
-        #
-        # if policy == 'get_or_create':
-        #     values['boundary_type'], __ = BoundaryType_policy(admin_level=LEVEL,
-        #                                                       country=COUNTRY,
-        #                                                       defaults={'description': "%s level #%s" % (
-        #                                                           COUNTRY, LEVEL)}
-        #                                                       )
-        # elif policy == 'get':
-        #     values['boundary_type'], __ = BoundaryType_policy(admin_level=LEVEL,
-        #                                                       country=COUNTRY)
-        # else:
-        #     raise ValueError(policy)
-        #
-        # kind = collection.meta['schema']['geometry']
-        # # # If it's type polygon, make it MultiPolygon so it will save to db field
-        # if kind == 'Polygon':
-        #     values['geom'] = GEOSGeometry(json.dumps({
-        #         'type': 'MultiPolygon',
-        #         'coordinates': item['geometry']['coordinates']
-        #     }))
-        # else:
-        #     raise ValueError(kind)
-        # filters = {'country': COUNTRY, 'boundary_type': values['boundary_type'], 'p_code': values['p_code']}
-        # Boundary.timeframes.deactivate(**filters, values=values)
 
     @transition(field=state, source=['preparing', 'ready', 'queued'], target='canceled')
     def cancel(self):
@@ -385,7 +291,3 @@ class UploadFieldMap(FieldMapAbstract):
 
     class Meta:
         unique_together = ('processor', 'geo_field', 'shape_field')
-        # constraints = [models.CheckConstraint(check=Q(),
-        #                                       fields=['p_code', 'country', 'level', 'active'],
-        #                                        name='unique_active_pcode',
-        #                                        condition=Q(active=True)),

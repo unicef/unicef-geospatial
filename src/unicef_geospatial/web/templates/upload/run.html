@@ -1,0 +1,7 @@
+{% extends "base.html" %}{% load crispy_forms_filters i18n json %}
+{% block page %}
+    {{ object }}
+    {% for line in log %}
+        <div class="row">{{ line|safe }}</div>
+    {% endfor %}
+{% endblock page %}

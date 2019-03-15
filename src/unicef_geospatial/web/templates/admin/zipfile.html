@@ -4,13 +4,15 @@
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 {% endblock %}
 {% block breadcrumbs %}
-<div class="breadcrumbs">
-<a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
-&rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-&rsaquo; {% if has_view_permission %}<a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}{{ opts.verbose_name_plural|capfirst }}{% endif %}
-&rsaquo; <a href="{% url opts|admin_urlname:'change' original.pk %}">{{ original }}</a>
-&rsaquo; Zip content
-</div>
+    <div class="breadcrumbs">
+        <a href="{% url 'admin:index' %}">{% trans 'Home' %}</a>
+        &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
+        &rsaquo; {% if has_view_permission %}
+        <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>{% else %}
+        {{ opts.verbose_name_plural|capfirst }}{% endif %}
+        &rsaquo; <a href="{% url opts|admin_urlname:'change' original.pk %}">{{ original }}</a>
+        &rsaquo; Zip content
+    </div>
 {% endblock %}
 
 
@@ -19,6 +21,27 @@
         {% for f in files %}
             <li>{{ f }}</li>
         {% endfor %}
+    </ol>
+
+    {% for shapefile, info in shapes.items %}
+        <b>{{ shapefile }}</b>
+        <table class="table">
+            <tr style="background-color: #eee6ac">
+                {% for name in info.sample.headers   %}
+                    <td>{{ name }}</td>
+                {% endfor %}
+            </tr>
+
+            <tr>
+                {% for value in info.sample.row %}
+                    <td>{{ value }}</td>
+                {% endfor %}
+            </tr>
+
+        </table>
+    {% endfor %}
+    <ol>
+
     </ol>
 {% endblock content %}
 

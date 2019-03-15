@@ -1,2 +1,0 @@
-old_pcode	new_pcode	pcode_check	old_name	new_name	name_sim	geomsim_old	geomsim_new	dis_m	centr_dist_m	comment
-MZ	MZ	True	Mozambique	Mozambique	100.0	99.9921749563	99.9988478544	0	426.036468802	OK
