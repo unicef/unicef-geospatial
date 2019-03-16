@@ -3,7 +3,8 @@ from django.urls import path
 from django.views.generic import DetailView
 
 from unicef_geospatial.core.models import Upload
-from .views import index, UploadWizardView, Process
+
+from .views import index, Process, UploadWizardView
 
 urlpatterns = [
     path(r'', index, name='home'),

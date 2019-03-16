@@ -7,7 +7,6 @@ import shutil
 import sys
 import tempfile
 
-import fiona
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
@@ -15,10 +14,11 @@ from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
 from django.utils.functional import cached_property
 
+import fiona
 from django_fsm import FSMField, transition
 from pip._vendor.distlib.compat import ZipFile
 
-from unicef_geospatial.core.models import Country, BoundaryType, Boundary
+from unicef_geospatial.core.models import Boundary, BoundaryType, Country
 from unicef_geospatial.core.models.abstracts import FieldMapAbstract
 
 IDENTITY_BY_LEVEL = {0: [],
@@ -174,7 +174,7 @@ class UploadProcessor(models.Model):
     state = FSMField(default='preparing',
                      verbose_name='State',
                      choices=list(zip(STATES, STATES)),
-                     protected=True,
+                     protected=False,
                      )
 
     upload = models.ForeignKey(Upload, on_delete=models.CASCADE,

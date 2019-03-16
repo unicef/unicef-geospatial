@@ -1,16 +1,16 @@
 import glob
 import io
+import logging
 import os
 import tempfile
 from collections import OrderedDict
 from zipfile import ZipFile
-import logging
 
 from django import forms
 from django.conf import settings
 from django.contrib.admin.options import get_content_type_for_model
 from django.core.files.storage import FileSystemStorage
-from django.forms import inlineformset_factory, BaseInlineFormSet
+from django.forms import BaseInlineFormSet, inlineformset_factory
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.urls import reverse
