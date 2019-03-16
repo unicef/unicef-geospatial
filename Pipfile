@@ -39,6 +39,7 @@ requests = "*"
 admin-extra-urls = "*"
 drf-yasg = "*"
 django-crispy-forms = "*"
+django-formtools = "*"
 
 [requires]
 python_version = "3.6"

@@ -1,9 +1,10 @@
 from functools import lru_cache
 
-from crispy_forms.helper import FormHelper
 from django import forms
 
-from unicef_geospatial.core.models import Upload, UploadFieldMap, BoundaryType, Country, UploadProcessor
+from crispy_forms.helper import FormHelper
+
+from unicef_geospatial.core.models import BoundaryType, Country, Upload, UploadFieldMap, UploadProcessor
 
 
 class UploadCreateForm(forms.ModelForm):
@@ -57,4 +58,3 @@ class ConfigureForm(forms.ModelForm):
 
 class PreviewForm(forms.Form):
     pass
-

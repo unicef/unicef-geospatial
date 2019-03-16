@@ -49,7 +49,7 @@ class GeoModel(TimeFramedMixin):
     state = FSMField(default='Active',
                      verbose_name='Record State',
                      choices=list(zip(STATES, STATES)),
-                     protected=True,
+                     protected=False,
                      )
     # TODO: redundant for performace, but needs investigations
     active = models.BooleanField(verbose_name=_("Active"), default=True, null=True, blank=True)

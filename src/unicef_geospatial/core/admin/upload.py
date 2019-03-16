@@ -5,8 +5,6 @@ import shutil
 import tempfile
 from zipfile import ZipFile
 
-import fiona
-from admin_extra_urls.extras import ExtraUrlMixin, link, action
 from django import forms
 from django.conf import settings
 from django.contrib.admin import ModelAdmin, register, TabularInline
@@ -14,8 +12,12 @@ from django.http import HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
 
+import fiona
+from admin_extra_urls.extras import action, ExtraUrlMixin, link
+
 from unicef_geospatial.core.forms.upload import UploadCreateForm, UploadFieldMapForm
 from unicef_geospatial.core.views import UploadWizardView
+
 from ..models import Upload, UploadFieldMap, UploadProcessor
 
 
