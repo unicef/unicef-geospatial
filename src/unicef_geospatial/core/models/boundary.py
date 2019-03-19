@@ -7,7 +7,7 @@ from mptt.models import MPTTModel
 
 from .base import BaseGeoModel
 from .country import Country
-from .mixins import GeoModel, NamesMixin, TimeFramedMixin
+from .mixins import GeoModel, NamesMixin
 
 
 class BoundaryType(GeoModel, MPTTModel, BaseGeoModel):
