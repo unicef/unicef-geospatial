@@ -1,0 +1,7 @@
+{% extends "admin/change_form.html" %}{% load crispy_forms_filters i18n json %}
+{% block content %}
+    {{ object }}
+    {% for line in log %}
+        <div class="row">{{ line|safe }}</div>
+    {% endfor %}
+{% endblock %}

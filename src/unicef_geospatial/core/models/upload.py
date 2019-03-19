@@ -4,17 +4,18 @@ import json
 import logging
 import os
 import shutil
-import sys
 import tempfile
 
+from crashlog.middleware import process_exception
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
 from django.utils.functional import cached_property
 
 import fiona
+from django_cloneable import CloneableMixin
 from django_fsm import FSMField, transition
 from pip._vendor.distlib.compat import ZipFile
 
@@ -49,8 +50,8 @@ class FieldMap:
         try:
             return self._data[name]
         except KeyError:
-            raise ValueError("""FieldMap does not contains field '%s'. It contains %s.
-""" % (name, sane_repr(self._data.keys())))
+            raise ValueError("FieldMap does not contains field '%s'. "
+                             "It contains %s." % (name, sane_repr(self._data.keys())))
 
 
 class GetAttrWrapper:
@@ -67,6 +68,9 @@ class MappedGetAttrWrapper:
         self.cols = feature_properties.keys()
         self._mapping = mapping
 
+    def __repr__(self):
+        return "%s - %s" % (self._feature_properties, self.cols)
+
     def __getattr__(self, geo_field):
         fieldmap = self._mapping[geo_field]
         if fieldmap.is_value:
@@ -74,9 +78,11 @@ class MappedGetAttrWrapper:
         try:
             return self._feature_properties[fieldmap.shape_field]
         except KeyError:
-            raise ValueError("""Cannot find column '%s' in feature. It contains %s.
-Maybe field '%s' FieldMap should have 'is_value' set ? 
-""" % (fieldmap.shape_field, sane_repr(self.cols), geo_field))
+            raise ValueError("Cannot find column '%s' in feature. "
+                             "It contains %s. "
+                             "Maybe field '%s' FieldMap should have 'is_value' set ? " % (fieldmap.shape_field,
+                                                                                          sane_repr(self.cols),
+                                                                                          geo_field))
 
 
 class ShapeRowHandler:
@@ -93,65 +99,90 @@ class ShapeRowHandler:
     def level(self):
         return int(self.values.level)
 
+    def __repr__(self):
+        return "%s" % self.values
+
     @cached_property
     def parent(self):
         if self.level == 0:
             return None
         else:
+            if not self.country:
+                raise Exception('Country not set')
+
             filters = {'country': self.country,
                        'p_code': self.values.parent,
                        'boundary_type__level': self.level - 1,
                        'active': True}
             try:
                 return Boundary.objects.get(**filters)
-            except Boundary.DoesNotExist:
-                raise Exception("""Unable to find parent for %s using %s""" % ("", str(filters)))
+            except Boundary.DoesNotExist as e:
+                raise Exception("""Unable to find parent Boundary using %s: %s""" % (str(filters), e))
 
     @cached_property
     def boundary_type(self):
-        # target = self.values.boundary_type
+        filters = dict(country=self.country,
+                       active=True,
+                       admin_level=self.level)
+        if not self.country:
+            raise Exception('Country not set')
         try:
-            ret = BoundaryType.objects.get(country=self.country,
-                                           active=True,
-                                           admin_level=self.level)
-        except BoundaryType.DoesNotExist:
-            if self.processor.boundary_type_policy == 'get_or_create':
-                parent = BoundaryType.objects.get(country=self.country,
-                                                  active=True,
-                                                  admin_level=self.level - 1)
-                ret = BoundaryType.objects.create(country=self.country,
-                                                  active=True,
-                                                  parent=parent,
-                                                  admin_level=self.level,
-                                                  name=self.values.boundary_type__name)
-            else:
-                self.processor.logger.debug("Unable to find BoundaryType '%s'" % target)
-                raise
+            try:
+                ret = BoundaryType.objects.get(**filters)
+            except BoundaryType.DoesNotExist as e:
+                if self.processor.boundary_type_policy == 'get_or_create':
+                    try:
+                        if self.level > 0:
+                            parent = BoundaryType.objects.get(country=self.country,
+                                                              active=True,
+                                                              admin_level=self.level - 1)
+                        else:
+                            parent = None
+
+                        ret = BoundaryType.objects.create(country=self.country,
+                                                          active=True,
+                                                          parent=parent,
+                                                          admin_level=self.level,
+                                                          name=self.values.boundary_type__name)
+                    except BoundaryType.DoesNotExist as e:
+                        raise Exception("Unable find parent BoundaryType level '%d'" % (self.level - 1)) from e
+                    except Exception as e:
+                        raise Exception("Unable to create BoundaryType level '%d': %s" % (self.level, e)) from e
+                else:
+                    raise Exception("Unable to find BoundaryType '%s'" % filters) from e
+        except Exception:
+            raise
         self.processor.logger.debug('BoundaryType set to %s' % ret)
         return ret
 
     @cached_property
     def country(self):
-        target = self.values.country
+        try:
+            target = self.values.country
+        except ValueError:
+            target = None
         try:
             ret = Country.objects.get_by_code(target)
         except Country.DoesNotExist:
             if self.processor.country_policy == 'get_or_create':
-                ret = Country.objects.create(name=self.values.country__name,
-                                             iso_code_2=self.values.country__iso_code_2,
-                                             iso_code_3=self.values.country__iso_code_3,
-                                             )
+                values = 'unknown'
+                try:
+                    values = dict(name=self.values.country__name,
+                                  iso_code_2=self.values.country__iso_code_2,
+                                  iso_code_3=self.values.country__iso_code_3)
+                    ret, created = Country.objects.get_or_create(**values)
+                    if created:
+                        self.processor.logger.debug("Created new Country '%s'" % values)
+                except Exception as e:
+                    raise Exception("Unable to create Country '%s': %s" % (values, e)) from e
             else:
                 self.processor.logger.debug("Unable to find country '%s'" % target)
                 raise
         self.processor.logger.debug('Country set to %s' % ret)
         return ret
 
-    def __repr__(self):
-        return "%s - %s" % (self.row.keys(), self.row['properties'].keys())
 
-
-class Upload(models.Model):
+class Upload(CloneableMixin, models.Model):
     date = models.DateTimeField(auto_now_add=True)
     file = models.FileField(null=True, blank=True)
     user = models.ForeignKey(User, models.CASCADE, null=True, blank=True)
@@ -160,8 +191,88 @@ class Upload(models.Model):
     def __str__(self):
         return "#%d %s" % (self.id, self.file.name)
 
+    def clone(self):
+        """
+        Credits: https://stackoverflow.com/a/52761743/4300672
 
-class UploadProcessor(models.Model):
+        Duplicate a model instance, making copies of all foreign keys pointing to it.
+        There are 3 steps that need to occur in order:
+
+            1.  Enumerate the related child objects and m2m relations, saving in lists/dicts
+            2.  Copy the parent object per django docs (doesn't copy relations)
+            3a. Copy the child objects, relating to the copied parent object
+            3b. Re-create the m2m relations on the copied parent object
+
+        """
+        related_objects_to_copy = []
+        relations_to_set = {}
+        # Iterate through all the fields in the parent object looking for related fields
+        for field in self._meta.get_fields():
+            if field.one_to_many:
+                # One to many fields are backward relationships where many child objects are related to the
+                # parent (i.e. SelectedPhrases). Enumerate them and save a list so we can copy them after
+                # duplicating our parent object.
+                print(f'Found a one-to-many field: {field.name}')
+
+                # 'field' is a ManyToOneRel which is not iterable, we need to get the object attribute itself
+                related_object_manager = getattr(self, field.name)
+                related_objects = list(related_object_manager.all())
+                if related_objects:
+                    print(f' - {len(related_objects)} related objects to copy')
+                    related_objects_to_copy += related_objects
+
+            elif field.many_to_one:
+                # In testing so far, these relationships are preserved when the parent object is copied,
+                # so they don't need to be copied separately.
+                print(f'Found a many-to-one field: {field.name}')
+
+            elif field.many_to_many:
+                # Many to many fields are relationships where many parent objects can be related to many
+                # child objects. Because of this the child objects don't need to be copied when we copy
+                # the parent, we just need to re-create the relationship to them on the copied parent.
+                print(f'Found a many-to-many field: {field.name}')
+                related_object_manager = getattr(self, field.name)
+                relations = list(related_object_manager.all())
+                if relations:
+                    print(f' - {len(relations)} relations to set')
+                    relations_to_set[field.name] = relations
+
+        # Duplicate the parent object
+        self.pk = None
+        self.save()
+        print(f'Copied parent object ({str(self)})')
+
+        # Copy the one-to-many child objects and relate them to the copied parent
+        for related_object in related_objects_to_copy:
+            # Iterate through the fields in the related object to find the one that relates to the
+            # parent model (I feel like there might be an easier way to get at this).
+            for related_object_field in related_object._meta.fields:
+                if related_object_field.related_model == self.__class__:
+                    # If the related_model on this field matches the parent object's class, perform the
+                    # copy of the child object and set this field to the parent object, creating the
+                    # new child -> parent relationship.
+                    related_object.pk = None
+                    setattr(related_object, related_object_field.name, self)
+                    related_object.save()
+
+                    text = str(related_object)
+                    text = (text[:40] + '..') if len(text) > 40 else text
+                    print(f'|- Copied child object ({text})')
+
+        # Set the many-to-many relations on the copied parent
+        for field_name, relations in relations_to_set.items():
+            # Get the field by name and set the relations, creating the new relationships
+            field = getattr(self, field_name)
+            field.set(relations)
+            text_relations = []
+            for relation in relations:
+                text_relations.append(str(relation))
+            print(f'|- Set {len(relations)} many-to-many relations on {field_name} {text_relations}')
+
+        return self
+
+
+class UploadProcessor(CloneableMixin, models.Model):
     TYPE_COD = 1
     TYPE_GLOBAL = 2
     STATES = ('preparing',
@@ -227,12 +338,14 @@ class UploadProcessor(models.Model):
                     self.logger.info('Processing %s' % filepath)
                     workdir = tempfile.mkdtemp(dir=settings.BASE_WORK_DIR)
                     zip_ref.extractall(workdir)
+
                     self.logger.debug('Unzipping %s to %s' % (filepath, workdir))
                     targets = glob.glob(f'{workdir}/{self.pattern_filter}', recursive=True)
+
                     files = {}
                     local_field_names = [f.name for f in Boundary._meta.get_fields()]
                     for target in targets:
-                        self.logger.debug('Processing %s' % target)
+                        self.logger.debug('### Processing %s' % target)
                         with fiona.Env():
                             with fiona.open(target) as collection:
                                 files[target] = {'meta': collection.meta,
@@ -269,7 +382,9 @@ class UploadProcessor(models.Model):
                                     self.logger.debug("Adding/Updating %s" % repr(values))
                                     object = Boundary.timeframes.deactivate(**filters, values=values)
                                     objects.append(object)
+                            self.logger.debug('### Successfuklly processed %s' % target)
             except Exception as e:
+                process_exception(e)
                 raise
             finally:
                 if workdir:

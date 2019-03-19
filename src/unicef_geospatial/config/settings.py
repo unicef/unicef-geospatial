@@ -59,8 +59,32 @@ DEBUG = True
 
 # ORIGINAL_BACKEND = 'django.contrib.gis.db.backends.postgis'
 DATABASES = {
-    'default': env.db()
+    'default': env.db(),
+    'crashlog': env.db()
 }
+
+
+class AuthRouter:
+    def db_for_read(self, model, **hints):
+        if model._meta.app_label == 'crashlog':
+            return 'crashlog'
+        return None
+
+    def db_for_write(self, model, **hints):
+        if model._meta.app_label == 'crashlog':
+            return 'crashlog'
+        return None
+
+    def allow_relation(self, obj1, obj2, **hints):
+        if obj1._meta.app_label == 'crashlog' or \
+                obj2._meta.app_label == 'crashlog':
+            return True
+        return None
+
+
+# DATABASE_ROUTERS = [AuthRouter()]
+# crashlog
+
 DATABASES['default']['USER'] = 'postgres'
 DATABASES['default']['NAME'] = 'geospatial'
 
@@ -221,7 +245,6 @@ SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = env.str('AZURE_CLIENT_SECRET')
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = env.str('AZURE_TENANT')
 SOCIAL_AUTH_AZUREAD_OAUTH2_KEY = env.str('AZURE_CLIENT_ID')
 SOCIAL_AUTH_AZUREAD_OAUTH2_RESOURCE = 'https://graph.microsoft.com/'
-
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 CRISPY_FAIL_SILENTLY = not env.bool('DEBUG', False)

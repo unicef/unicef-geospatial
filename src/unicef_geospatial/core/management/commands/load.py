@@ -1,13 +1,8 @@
 # This is a first draft of a task to bootstrap the project with
 # admin boundaries from GADM
-import glob
-import json
 import os
-import re
-from functools import partial
 from pathlib import Path
 
-from django.contrib.gis.geos import GEOSGeometry
 from django.core.management.base import BaseCommand, CommandError
 
 import fiona
@@ -59,7 +54,6 @@ class Command(BaseCommand):
                             default='get_or_create', type=str)
         parser.add_argument('--type-policy', dest='boundary_type_policy',
                             default='get_or_create', type=str)
-
 
     def handle(self, folder, *args, **options):
         if not os.path.isdir(folder):

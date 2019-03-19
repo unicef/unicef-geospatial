@@ -27,7 +27,7 @@ from unicef_geospatial.core.forms.upload import (
     UploadFieldMapForm,
     UploadForm,
 )
-from unicef_geospatial.core.models import Country, Upload, UploadFieldMap, UploadProcessor
+from unicef_geospatial.core.models import Upload, UploadFieldMap, UploadProcessor
 from unicef_geospatial.core.models.upload import sane_repr
 from unicef_geospatial.state import state
 
@@ -267,12 +267,18 @@ class UploadWizardView(SessionWizardView):
                                                             'saved_list': saved})
 
 
+class HTMLFormatter(logging.Formatter):
+
+    def format(self, record):
+        return mark_safe(super().format(record))
+
+
 def getLogger(stream):
     logger = logging.getLogger('spam_application')
     logger.setLevel(logging.DEBUG)
     ch = logging.StreamHandler(stream=stream)
     ch.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(levelname)s - %(message)s')
+    formatter = HTMLFormatter('<b>%(levelname)s</b> - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
     return logger
@@ -281,6 +287,23 @@ def getLogger(stream):
 class Process(DetailView):
     model = Upload
     template_name = "upload/run.html"
+    modeladmin = None
+
+    def get_template_names(self):
+        if self.modeladmin:
+            return ["admin/run.html"]
+        return [self.template_name]
+
+    def get_context_data(self, **kwargs):
+        if self.modeladmin:
+            opts = self.object._meta
+            ctx = {"opts": opts,
+                   "original": self.object,
+                   "app_label": opts.app_label,
+                   "has_view_permission": True,
+                   }
+            kwargs.update(**ctx)
+        return super().get_context_data(**kwargs)
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
