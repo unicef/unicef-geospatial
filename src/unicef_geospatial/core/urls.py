@@ -1,8 +1,5 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
-from django.views.generic import DetailView
-
-from unicef_geospatial.core.models import Upload
 
 from .views import index, Process, UploadWizardView
 

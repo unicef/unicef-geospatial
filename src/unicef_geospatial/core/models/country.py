@@ -17,6 +17,8 @@ CONTINENTS = (
 
 class CountryManager(models.Manager):
     def get_by_code(self, code):
+        if not code:
+            raise Country.DoesNotExist(code)
         try:
             filters = {'un_number': int(code)}
         except ValueError:
@@ -25,7 +27,7 @@ class CountryManager(models.Manager):
             elif len(code) == 3:
                 filters = {'iso_code_3': code}
             else:
-                raise ValueError('Invalid country code %s' % code)
+                raise Country.DoesNotExist(code)
         return self.get(**filters)
 
 
@@ -47,4 +49,4 @@ class Country(GeoModel, BaseGeoModel):
         verbose_name_plural = _('Countries')
 
     def __str__(self):
-        return self.name
+        return "%s (%s)" % (self.name, self.iso_code_2)

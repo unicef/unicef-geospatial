@@ -29,7 +29,7 @@ class TimeFramedQuerySet(QuerySet):
         # # TODO: remove me
         # print(111, "mixins.py:29", 9999, "filters:", filters)
         # print(111, "mixins.py:29", 9999, "values:", values)
-        aaa = self.filter(**filters).update(active=False, valid_to=expired)
+        self.filter(**filters).update(active=False, valid_to=expired)
         # # TODO: remove me
         # print(111, "mixins.py:33", aaa)
         return self.create(**values)

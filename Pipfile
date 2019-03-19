@@ -40,6 +40,8 @@ admin-extra-urls = "*"
 drf-yasg = "*"
 django-crispy-forms = "*"
 django-formtools = "*"
+markdown = "*"
+django-cloneable = "*"
 
 [requires]
 python_version = "3.6"

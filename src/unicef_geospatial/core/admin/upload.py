@@ -16,7 +16,7 @@ import fiona
 from admin_extra_urls.extras import action, ExtraUrlMixin, link
 
 from unicef_geospatial.core.forms.upload import UploadCreateForm, UploadFieldMapForm
-from unicef_geospatial.core.views import UploadWizardView
+from unicef_geospatial.core.views import UploadWizardView, Process
 
 from ..models import Upload, UploadFieldMap, UploadProcessor
 
@@ -27,10 +27,15 @@ class FieldMapInline(TabularInline):
     fields = ('geo_field', 'shape_field', 'mandatory', 'is_value')
 
 
+class ProcessorInline(TabularInline):
+    model = UploadProcessor
+
+
 @register(Upload)
 class UploadAdmin(ExtraUrlMixin, ModelAdmin):
     list_display = ('date', 'user', 'file')
     exclude = ('metadata', 'mapping')
+    inlines = [ProcessorInline]
 
     def get_context_for_object(self, **kwargs):
         opts = self.object._meta
@@ -41,6 +46,20 @@ class UploadAdmin(ExtraUrlMixin, ModelAdmin):
                }
         ctx.update(**kwargs)
         return ctx
+
+    @action()
+    def clone(self, request, pk):
+        self.object = Upload.objects.get(pk=pk)
+        cloned = self.object.clone()
+        url = reverse("admin:core_upload_change", args=[cloned.pk])
+        return HttpResponseRedirect(url)
+
+    @action()
+    def run(self, request, pk):
+        self.object = Upload.objects.get(pk=pk)
+        view = Process.as_view(modeladmin=self)
+        # view.kwargs = {'pk': pk}
+        return view(request, pk=pk)
 
     @action()
     def inspect(self, request, pk):

@@ -1,5 +1,3 @@
-from functools import lru_cache
-
 from django import forms
 
 from crispy_forms.helper import FormHelper
@@ -15,14 +13,13 @@ class UploadCreateForm(forms.ModelForm):
 
 def get_boundary_fields():
     from unicef_geospatial.core.models import Boundary
-    elements = ['']+[f.name for f in Boundary._meta.get_fields()] \
-        + ['boundary_type__%s' % f.name for f in BoundaryType._meta.get_fields()] \
-        + ['country__%s' % f.name for f in Country._meta.get_fields()]
+    elements = [''] + [f.name for f in Boundary._meta.get_fields()] + \
+               ['boundary_type__%s' % f.name for f in BoundaryType._meta.get_fields()] + \
+               ['country__%s' % f.name for f in Country._meta.get_fields()]
     return zip(elements, elements)
 
 
 class UploadFieldMapForm(forms.ModelForm):
-
     class Meta:
         model = UploadFieldMap
         fields = ('geo_field', 'shape_field', 'mandatory', 'is_value')
