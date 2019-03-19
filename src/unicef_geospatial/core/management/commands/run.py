@@ -1,19 +1,9 @@
 # This is a first draft of a task to bootstrap the project with
 # admin boundaries from GADM
-import glob
-import json
 import logging
-import os
-import re
-from functools import partial
-from pathlib import Path
+from django.core.management.base import BaseCommand
 
-from django.contrib.gis.geos import GEOSGeometry
-from django.core.management.base import BaseCommand, CommandError
-
-import fiona
-
-from unicef_geospatial.core.models import Boundary, BoundaryType, Country, Upload
+from unicef_geospatial.core.models import Upload
 
 
 def getLogger():

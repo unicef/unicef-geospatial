@@ -13,10 +13,10 @@ from django.template.response import TemplateResponse
 from django.urls import reverse
 
 import fiona
-from admin_extra_urls.extras import action, ExtraUrlMixin, link
+from admin_extra_urls.extras import action, ExtraUrlMixin
 
-from unicef_geospatial.core.forms.upload import UploadCreateForm, UploadFieldMapForm
-from unicef_geospatial.core.views import UploadWizardView, Process
+from unicef_geospatial.core.forms.upload import UploadFieldMapForm
+from unicef_geospatial.core.views import Process
 
 from ..models import Upload, UploadFieldMap, UploadProcessor
 

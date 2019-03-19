@@ -5,9 +5,7 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-import fiona
-
-from unicef_geospatial.core.models import Boundary, BoundaryType, Country, Upload
+from unicef_geospatial.core.models import Country, Upload
 
 
 def get_level_resolver(config):
