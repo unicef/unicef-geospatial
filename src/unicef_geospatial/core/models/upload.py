@@ -369,7 +369,7 @@ class UploadProcessor(CloneableMixin, models.Model):
                                             values.setdefault(k, getattr(self.current_record.values, k))
 
                                     gtype = item['geometry']['type']
-                                    if gtype == 'Polygon':
+                                    if gtype == 'Polygon' or gtype == 'MultiPolygon':
                                         values['geom'] = GEOSGeometry(json.dumps({
                                             'type': 'MultiPolygon',
                                             'coordinates': item['geometry']['coordinates']
