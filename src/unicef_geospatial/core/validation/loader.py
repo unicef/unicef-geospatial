@@ -2,7 +2,10 @@ import os
 from datetime import datetime
 from difflib import SequenceMatcher
 
-from unicef_geospatial.core.validation.utils import calc_distance
+from django.contrib.gis.db.models.functions import Intersection
+
+from unicef_geospatial.core.models import Boundary
+from unicef_geospatial.core.validation.utils import calc_distance, getval
 
 start_time = datetime.now()
 print("Started at: {}".format(start_time))
@@ -24,7 +27,39 @@ new_lyr_label = 'Ver2'
 #######################
 
 
-qgis = QgsSpatialIndex = None  # TODO fix!!!
+# qgis = QgsSpatialIndex = None  # TODO fix!!!
+
+
+
+# 2 sets of boundaries
+def check_overlapping(admin_level, country_iso_code_2):
+
+    #   = NEW objects from loading
+    old_boundaries = Boundary.objects.filter(boundary_type__admin_level=admin_level, country__iso_code_2=country_iso_code_2,
+                            # filter_active
+                            )  # old_fts
+
+    new_boundaries = Boundary.objects.filter(boundary_type__admin_level=admin_level, country__iso_code_2=country_iso_code_2,)  # tofix
+    # handle what loaded data can have multiple country and multiple admin_level
+
+
+    {
+        'overlapping': [],
+        'neighbors': []
+    }
+for old_boundary in old_boundaries:
+    overlapping_areas = new_boundaries.filter(geom__intersects=old_boundary.geom)
+    print('OVER', overlapping_areas)
+    for overlap in overlapping_areas:
+        intersection = Intersection(old_boundary.geom, overlap.geom) # maybe we can have to pass .geom
+        print(type(intersection))
+        print(intersection.area)
+
+        # for intersection in intersections:
+        #     print(intersection, intersection.area)
+        # match += overlapping.count()
+
+
 
 
 def loader_check(old_lyr_name, new_lyr_name):
@@ -34,9 +69,9 @@ def loader_check(old_lyr_name, new_lyr_name):
     new_lyr = [layer for layer in qgis.utils.iface.legendInterface().layers() if layer.name() == new_lyr_name][0]
 
     # build spatial index for new features
-    n_index = QgsSpatialIndex()
-    for f in new_lyr.getFeatures():
-        n_index.insertFeature(f)
+    # n_index = QgsSpatialIndex()
+    # for f in new_lyr.getFeatures():
+    #     n_index.insertFeature(f)
 
     # get old and new features into dictionaries
     new_fts = {feature.id(): feature for (feature) in new_lyr.getFeatures()}  # [ft for ft in new_lyr.getFeatures()]
@@ -48,11 +83,11 @@ def loader_check(old_lyr_name, new_lyr_name):
     for oft in old_fts.values():
         old2new_remap_overlaps = []
         old2new_remap_neighbors = []
-        oft.geometry().pointOnSurface()
-        match_found = 0
+        # oft.geometry().pointOnSurface()
+        match_found = 0  # count of overlapping
 
         # first try intersecting with nearest neighbors
-        near_ids = n_index.intersects(oft.geometry().boundingBox())
+        near_ids = n_index.intersects(oft.geometry().boundingBox())  # list of id of new geometry
         for nid in near_ids:
             nnft = new_fts[nid]
             nn_intersect_geom = oft.geometry().intersection(nnft.geometry())
