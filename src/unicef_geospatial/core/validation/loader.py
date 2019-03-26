@@ -54,21 +54,8 @@ def check_overlapping(admin_level, country_iso_code_2):
             # find nearest boundary
             nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid))  # todo - find distance between actual boundaries not centroid
             best_match = min(nearest_boundaries, key=lambda x: x.distance)
-
-    print('OVER', overlapping_boundaries)
-
-    for overlap in overlapping_boundaries:
-        intersection = Intersection(old_boundary.geom, overlap.geom)  # maybe we can have to pass .geom
-        print(type(intersection))
-        print(intersection.area)
-
-        # for intersection in intersections:
-        #     print(intersection, intersection.area)
-        # match += overlapping.count()
-
-
-qgis = QgsSpatialIndex = None  # TODO fix!!!
-
+            
+        
 
 def loader_check(old_lyr_name, new_lyr_name):
 
