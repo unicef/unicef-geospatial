@@ -57,7 +57,7 @@ for old_boundary in old_boundaries:
     else:
         # find nearest boundary
         nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid)) # todo - find distance between actual boundaries not centroid
-        best_match = min(overlapping_boundaries, key=lambda x: x.distance)
+        best_match = min(nearest_boundaries, key=lambda x: x.distance)
 
     
     print('OVER', overlapping_boundaries)
