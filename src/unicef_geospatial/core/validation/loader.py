@@ -3,6 +3,7 @@ from datetime import datetime
 from difflib import SequenceMatcher
 
 from django.contrib.gis.db.models.functions import Intersection
+from django.contrib.gis.measure import Distance
 
 from unicef_geospatial.core.models import Boundary
 from unicef_geospatial.core.validation.utils import calc_distance, getval
@@ -27,44 +28,37 @@ new_lyr_label = 'Ver2'
 #######################
 
 
-# qgis = QgsSpatialIndex = None  # TODO fix!!!
-
-
-
 # 2 sets of boundaries
 def check_overlapping(admin_level, country_iso_code_2):
 
     #   = NEW objects from loading
-    old_boundaries = Boundary.objects.filter(boundary_type__admin_level=admin_level, country__iso_code_2=country_iso_code_2,
-                            # filter_active
-                            )  # old_fts
+    old_boundaries = Boundary.objects.filter(boundary_type__admin_level=admin_level,
+                                             country__iso_code_2=country_iso_code_2,  # filter_active
+                                             )  # old_fts
 
     new_boundaries = Boundary.objects.filter(boundary_type__admin_level=admin_level, country__iso_code_2=country_iso_code_2,)  # tofix
     # handle what loaded data can have multiple country and multiple admin_level
-
 
     {
         'overlapping': [],
         'neighbors': []
     }
-for old_boundary in old_boundaries:
-    overlapping_boundaries = new_boundaries.filter(geom__intersects=old_boundary.geom).annotate(
-    intersection=Intersection('geom', old_boundary.geom))
+    for old_boundary in old_boundaries:
+        overlapping_boundaries = new_boundaries.filter(geom__intersects=old_boundary.geom).annotate(
+            intersection=Intersection('geom', old_boundary.geom))
 
-    if len(overlapping_boundaries) > 0:
-        # get most overlapping boundary
-        best_match = max(overlapping_boundaries, key=lambda x: x.intersection.area)
-    else:
-        # find nearest boundary
-        nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid)) # todo - find distance between actual boundaries not centroid
-        best_match = min(nearest_boundaries, key=lambda x: x.distance)
+        if len(overlapping_boundaries) > 0:
+            # get most overlapping boundary
+            best_match = max(overlapping_boundaries, key=lambda x: x.intersection.area)
+        else:
+            # find nearest boundary
+            nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid))  # todo - find distance between actual boundaries not centroid
+            best_match = min(nearest_boundaries, key=lambda x: x.distance)
 
-    
     print('OVER', overlapping_boundaries)
-    
-    
+
     for overlap in overlapping_boundaries:
-        intersection = Intersection(old_boundary.geom, overlap.geom) # maybe we can have to pass .geom
+        intersection = Intersection(old_boundary.geom, overlap.geom)  # maybe we can have to pass .geom
         print(type(intersection))
         print(intersection.area)
 
@@ -73,6 +67,7 @@ for old_boundary in old_boundaries:
         # match += overlapping.count()
 
 
+qgis = QgsSpatialIndex = None  # TODO fix!!!
 
 
 def loader_check(old_lyr_name, new_lyr_name):
