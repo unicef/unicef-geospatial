@@ -48,13 +48,18 @@ def check_overlapping(admin_level, country_iso_code_2):
         'neighbors': []
     }
 for old_boundary in old_boundaries:
-    overlapping_areas = new_boundaries.filter(geom__intersects=old_boundary.geom).annotate( # can we use this instead of for loop and individual intersections..?
-    intersection=Intersection('geom', old_boundary.geom)).order_by('-intersection')
+    overlapping_boundaries = new_boundaries.filter(geom__intersects=old_boundary.geom).annotate( # can we use this instead of for loop and individual intersections..?
+    intersection=Intersection('geom', old_boundary.geom))
     
-    print('OVER', overlapping_areas)
+    if len(overlapping_boundaries) > 0:
+	    best_match = max(overlapping_boundaries, key=lambda x: x.intersection.area)
+    else:
+	    # find nearest match by distance
+    
+    print('OVER', overlapping_boundaries)
     
     
-    for overlap in overlapping_areas:
+    for overlap in overlapping_boundaries:
         intersection = Intersection(old_boundary.geom, overlap.geom) # maybe we can have to pass .geom
         print(type(intersection))
         print(intersection.area)
