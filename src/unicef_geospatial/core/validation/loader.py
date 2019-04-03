@@ -54,7 +54,11 @@ def check_overlapping(admin_level, country_iso_code_2):
             # find nearest boundary
             nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid))  # todo - find distance between actual boundaries not centroid
             best_match = min(nearest_boundaries, key=lambda x: x.distance)
-            
+        
+        # ToDo:
+        # - get old and new uuids, names, pcodes and geometries
+        # - calculate similarities
+        # - write to the remap table
         
 
 def loader_check(old_lyr_name, new_lyr_name):
