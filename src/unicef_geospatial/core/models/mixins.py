@@ -5,6 +5,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_fsm import FSMField, transition
+from model_utils import Choices
 
 
 class NamesMixin(models.Model):
@@ -44,11 +45,14 @@ class TimeFramedMixin(models.Model):
 
 
 class GeoModel(TimeFramedMixin):
-    STATES = ('Pending Approval', 'Active', 'Archived')
+    STATES = Choices(('active', _('active')),
+                     ('processing'), _('Processing'),
+                     ('pendig'), _('Pending Approval'),
+                     ('archived', _('Archived')))
 
-    state = FSMField(default='Active',
+    state = FSMField(default=STATES.processing,
                      verbose_name='Record State',
-                     choices=list(zip(STATES, STATES)),
+                     choices=STATES,
                      protected=False,
                      )
     # TODO: redundant for performace, but needs investigations

@@ -5,10 +5,14 @@ import logging
 import os
 import shutil
 import tempfile
+from collections import defaultdict
+from difflib import SequenceMatcher
+from typing import DefaultDict
 
 from crashlog.middleware import process_exception
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.gis.db.models.functions import Intersection, Distance
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.postgres.fields import JSONField
 from django.db import models, transaction
@@ -122,7 +126,7 @@ class ShapeRowHandler:
     @cached_property
     def boundary_type(self):
         filters = dict(country=self.country,
-                       active=True,
+                       state=BoundaryType.STATES.active,
                        admin_level=self.level)
         if not self.country:
             raise Exception('Country not set')
@@ -338,6 +342,7 @@ class UploadProcessor(CloneableMixin, models.Model):
                     self.logger.info('Processing %s' % filepath)
                     workdir = tempfile.mkdtemp(dir=settings.BASE_WORK_DIR)
                     zip_ref.extractall(workdir)
+                    processed = defaultdict(list)
 
                     self.logger.debug('Unzipping %s to %s' % (filepath, workdir))
                     targets = glob.glob(f'{workdir}/{self.pattern_filter}', recursive=True)
@@ -352,13 +357,14 @@ class UploadProcessor(CloneableMixin, models.Model):
                                                  'count': len(collection),
                                                  'local_field_names': local_field_names,
                                                  'records': []}
+                                processed[self.current_record.country] = set()
                                 for key, item in collection.items():
                                     self.current_record = ShapeRowHandler(self, item)
                                     filters = {'country': self.current_record.country,
                                                'boundary_type': self.current_record.boundary_type,
                                                'p_code': self.current_record.values.p_code
                                                }
-
+                                    processed[self.current_record.country].add(self.current_record.boundary_type)
                                     values = {'country': self.current_record.country,
                                               'boundary_type': self.current_record.boundary_type,
                                               'p_code': self.current_record.values.p_code,
@@ -380,9 +386,14 @@ class UploadProcessor(CloneableMixin, models.Model):
 
                                     self.logger.debug("Deactivating %s" % repr(filters))
                                     self.logger.debug("Adding/Updating %s" % repr(values))
-                                    object = Boundary.timeframes.deactivate(**filters, values=values)
+                                    values['state'] = Boundary.STATES.processing
+                                    object = Boundary.objects.create(values=values)
+                                    # object = Boundary.timeframes.deactivate(**filters, values=values)
                                     objects.append(object)
                             self.logger.debug('### Successfuklly processed %s' % target)
+
+                check_overlapping(processed)
+
             except Exception as e:
                 process_exception(e)
                 raise
@@ -406,3 +417,45 @@ class UploadFieldMap(FieldMapAbstract):
 
     class Meta:
         unique_together = ('processor', 'geo_field', 'shape_field')
+
+
+
+def check_overlapping(values):
+    for country, boundaries in values.items():
+        for boundary_type in boundaries:
+            #   = NEW objects from loading
+            old_boundaries = Boundary.objects.filter(boundary_type=boundary_type,
+                                                     country=country,
+                                                     state=BoundaryType.STATES.active)
+            new_boundaries = Boundary.objects.filter(boundary_type=boundary_type,
+                                                     country=country,
+                                                     state=BoundaryType.STATES.processing)  # tofix
+            # handle what loaded data can have multiple country and multiple admin_level
+
+            for old_boundary in old_boundaries:
+                overlapping_boundaries = new_boundaries.filter(geom__intersects=old_boundary.geom).annotate(
+                    intersection=Intersection('geom', old_boundary.geom))
+
+                if overlapping_boundaries.exists():
+                    best_match = max(overlapping_boundaries, key=lambda x: x.intersection.area)  # most overlapping boundary
+                    # best_match = overlapping_boundaries.order_by('intersection').last()
+                else:
+                    # find nearest boundary
+                    nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid))  # todo - find distance between actual boundaries not centroid
+                    best_match = nearest_boundaries.order_by('distance').first()
+
+                # calculate name similarity
+                name_sim = SequenceMatcher(None, old_boundary.name, best_match.name).ratio() * 100
+
+                # calculate distance between centroids
+                centr_dist = old_boundary.geom.point_on_surface.distance(best_match.geom.point_on_surface) * 100
+
+                # calculate geom similarities
+                geomsim_old, geomsim_new = 0
+                if best_match.intersection:
+                    intersect_geom = best_match.intersection
+                    geomsim_old = (intersect_geom.area / old_boundary.geom.area * 100)
+                    geomsim_new = (intersect_geom.area / best_match.geom.area * 100)
+
+                # ToDo:
+                # - write old and new uuids, names, pcodes and similarities (name and geometry) to the remap table
