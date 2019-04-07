@@ -1,5 +1,7 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django.db.models import QuerySet
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from django_fsm import FSMField, transition
@@ -16,6 +18,23 @@ class NamesMixin(models.Model):
         abstract = True
 
 
+class TimeFramedQuerySet(QuerySet):
+    def deactivate(self, **kwargs):
+        expired = kwargs.pop('expired', timezone.now())
+        values = kwargs.pop('values')
+        values['active'] = True
+        values['valid_to'] = None
+        values['valid_from'] = timezone.now()
+        filters = dict(kwargs)
+        # # TODO: remove me
+        # print(111, "mixins.py:29", 9999, "filters:", filters)
+        # print(111, "mixins.py:29", 9999, "values:", values)
+        self.filter(**filters).update(active=False, valid_to=expired)
+        # # TODO: remove me
+        # print(111, "mixins.py:33", aaa)
+        return self.create(**values)
+
+
 class TimeFramedMixin(models.Model):
     valid_from = models.DateTimeField(_('start'), null=True, blank=True)
     valid_to = models.DateTimeField(_('end'), null=True, blank=True)
@@ -30,10 +49,13 @@ class GeoModel(TimeFramedMixin):
     state = FSMField(default='Active',
                      verbose_name='Record State',
                      choices=list(zip(STATES, STATES)),
-                     protected=True,
+                     protected=False,
                      )
     # TODO: redundant for performace, but needs investigations
-    active = models.BooleanField(verbose_name=_("Active"), default=True)
+    active = models.BooleanField(verbose_name=_("Active"), default=True, null=True, blank=True)
+
+    objects = models.Manager()
+    timeframes = TimeFramedQuerySet.as_manager()
 
     class Meta:
         abstract = True

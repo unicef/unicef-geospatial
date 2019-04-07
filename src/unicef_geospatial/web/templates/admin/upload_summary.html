@@ -1,0 +1,6 @@
+{% extends "admin/upload_wizard_base.html" %}
+
+{% block content %}
+    <a href="{% url "admin:core_upload_change"  object.pk %}">{{ object }}</a>
+{% endblock content %}
+

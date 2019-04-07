@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 import environ
@@ -15,7 +14,9 @@ env = environ.Env(
     DATABASE_URL=(str, "postgis://postgres:@127.0.0.1:5432/geospatial"),
     CACHE_URL=(str, "dummycache://"),
     CACHE_URL_LOCK=(str, "dummycache://"),
-    STATIC_ROOT=(str, "/tmp/"),
+    STATIC_ROOT=(str, "./~build/static"),
+    MEDIA_ROOT=(str, "./~build/media"),
+    BASE_WORK_DIR=(str, "./~build/workdir")
 )
 
 SECRET_KEY = env('SECRET_KEY')
@@ -29,9 +30,10 @@ INSTALLED_APPS = (
     'django.contrib.gis',
     'django.contrib.postgres',
     # 'django.contrib.admin',
+    # 'bootstrap_admin',
     'unicef_geospatial.config.admin.AdminConfig',
-
     'django.contrib.humanize',
+    'crispy_forms',
     'mptt',
     'leaflet',
     'crashlog',
@@ -56,12 +58,36 @@ DEBUG = True
 
 # ORIGINAL_BACKEND = 'django.contrib.gis.db.backends.postgis'
 DATABASES = {
-    'default': env.db()
+    'default': env.db(),
+    'crashlog': env.db()
 }
+
+
+class AuthRouter:
+    def db_for_read(self, model, **hints):
+        if model._meta.app_label == 'crashlog':
+            return 'crashlog'
+        return None
+
+    def db_for_write(self, model, **hints):
+        if model._meta.app_label == 'crashlog':
+            return 'crashlog'
+        return None
+
+    def allow_relation(self, obj1, obj2, **hints):
+        if obj1._meta.app_label == 'crashlog' or \
+                obj2._meta.app_label == 'crashlog':
+            return True
+        return None
+
+
+# DATABASE_ROUTERS = [AuthRouter()]
+# crashlog
+
 DATABASES['default']['USER'] = 'postgres'
 DATABASES['default']['NAME'] = 'geospatial'
 
-MEDIA_ROOT = os.environ.get('MEDIA_ROOT', '/tmp/geospatial/media/')
+MEDIA_ROOT = env('MEDIA_ROOT')
 MEDIA_URL = '/media/'
 
 LANGUAGE_CODE = 'en-us'
@@ -218,3 +244,8 @@ SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_SECRET = env.str('AZURE_CLIENT_SECRET')
 SOCIAL_AUTH_AZUREAD_TENANT_OAUTH2_TENANT_ID = env.str('AZURE_TENANT')
 SOCIAL_AUTH_AZUREAD_OAUTH2_KEY = env.str('AZURE_CLIENT_ID')
 SOCIAL_AUTH_AZUREAD_OAUTH2_RESOURCE = 'https://graph.microsoft.com/'
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
+CRISPY_FAIL_SILENTLY = not env.bool('DEBUG', False)
+
+BASE_WORK_DIR = env('BASE_WORK_DIR')

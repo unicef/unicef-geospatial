@@ -13,6 +13,7 @@
 
 # Sphinx docs:
 build
+~build/
 
 # SQLite3 database files:
 *.db
