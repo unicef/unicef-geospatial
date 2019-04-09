@@ -441,18 +441,18 @@ def check_overlapping(values):
                     # best_match = overlapping_boundaries.order_by('intersection').last()
                 else:
                     # find nearest boundary
-                    nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom.centroid))  # todo - find distance between actual boundaries not centroid
+                    nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom))  # todo - find distance between actual boundaries not centroid
                     best_match = nearest_boundaries.order_by('distance').first()
 
                 # calculate name similarity
                 name_sim = SequenceMatcher(None, old_boundary.name, best_match.name).ratio() * 100
 
                 # calculate distance between centroids
-                centr_dist = old_boundary.geom.point_on_surface.distance(best_match.geom.point_on_surface) * 100
+                centr_dist = old_boundary.geom.point_on_surface.distance(best_match.geom.point_on_surface) / 10 # todo - use pyproj for distance calculation i meters
 
                 # calculate geom similarities
                 geomsim_old, geomsim_new = 0
-                if best_match.intersection:
+                if hasattr(best_match, 'intersection'):
                     intersect_geom = best_match.intersection
                     geomsim_old = (intersect_geom.area / old_boundary.geom.area * 100)
                     geomsim_new = (intersect_geom.area / best_match.geom.area * 100)
