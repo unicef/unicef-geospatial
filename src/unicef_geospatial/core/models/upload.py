@@ -437,8 +437,8 @@ def check_overlapping(values):
                     intersection=Intersection('geom', old_boundary.geom))
 
                 if overlapping_boundaries.exists():
-                    best_match = max(overlapping_boundaries, key=lambda x: x.intersection.area)  # most overlapping boundary
-                    # best_match = overlapping_boundaries.order_by('intersection').last()
+                    # best_match = max(overlapping_boundaries, key=lambda x: x.intersection.area)  # most overlapping boundary
+                    best_match = overlapping_boundaries.order_by(Area('intersection')).last()
                 else:
                     # find nearest boundary
                     nearest_boundaries = new_boundaries.annotate(distance=Distance('geom', old_boundary.geom))  # todo - find distance between actual boundaries not centroid
