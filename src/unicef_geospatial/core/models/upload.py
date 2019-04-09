@@ -448,7 +448,9 @@ def check_overlapping(values):
                 name_sim = SequenceMatcher(None, old_boundary.name, best_match.name).ratio() * 100
 
                 # calculate distance between centroids
-                centr_dist = old_boundary.geom.point_on_surface.distance(best_match.geom.point_on_surface) / 10 # todo - use pyproj for distance calculation i meters
+                centr_dist = old_boundary.geom.point_on_surface.distance(best_match.geom.point_on_surface) * 100000 # todo - use pyproj for distance calculation i meters
+                
+                geom_dist = 0
 
                 # calculate geom similarities
                 geomsim_old, geomsim_new = 0
@@ -456,6 +458,8 @@ def check_overlapping(values):
                     intersect_geom = best_match.intersection
                     geomsim_old = (intersect_geom.area / old_boundary.geom.area * 100)
                     geomsim_new = (intersect_geom.area / best_match.geom.area * 100)
+                else:
+                    geom_dist = best_match.distance
 
                 # ToDo:
                 # - write old and new uuids, names, pcodes and similarities (name and geometry) to the remap table
