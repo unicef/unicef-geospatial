@@ -42,6 +42,7 @@ INSTALLED_APPS = (
     'impersonate',
     'rest_framework',
     'django_admin_json_editor',
+    'unicef_security',
     'unicef_geospatial.core.apps.Config',
     'unicef_geospatial.web.apps.Config',
 )
@@ -110,6 +111,8 @@ TEMPLATES = [
         },
     },
 ]
+
+AUTH_USER_MODEL = 'unicef_security.User'
 
 CACHES = {
     'default': env.cache(),

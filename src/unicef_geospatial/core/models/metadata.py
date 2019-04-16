@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 
@@ -14,7 +14,7 @@ class UpdateMetaData(models.Model):
                      )
 
     date = models.DateField(auto_now_add=True)
-    user = models.ForeignKey(User, models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, models.CASCADE)
     filename = models.CharField(max_length=255)
     metadata = JSONField(null=True, blank=True)
     mapping = JSONField(null=True, blank=True)
