@@ -11,7 +11,7 @@ isort = "*"
 pdbpp = "*"
 
 [packages]
-django = "==2.2b1"
+django = "*"
 djangorestframework = "*"
 django-filter = "*"
 #dj-static = "*"
@@ -46,7 +46,4 @@ bootstrap-admin = "*"
 django-extensions = "*"
 
 [requires]
-python_version = "3.6"
-
-[pipenv]
-allow_prereleases = true
+python_version = "3.7"
