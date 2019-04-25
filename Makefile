@@ -18,6 +18,7 @@ help:
 develop: .init-db
 	@python manage.py migrate --noinput
 	@if [[ -f ".env" ]]; then echo '.env file found. Do not create it'; else echo "PYTHONPATH=./src:$${PYTHONPATH}" > env; fi
+	@if [[ -f ".env" ]]; then echo '.env file found. Do not create it'; else echo "MEDIA_ROOT=~build/storage" >> env; fi
 	pipenv sync -d
 	pre-commit install
 	@python manage.py init-setup --all

@@ -1,0 +1,74 @@
+{% extends "base.html" %}{% load crispy_forms_filters i18n json %}
+{% block page %}
+    <style>
+        ul.errorlist{
+            list-style-type: none;
+            margin:0;
+            color: red;
+            padding: 0;
+        }
+    </style>
+    <div class="col-12">
+        {% if zipfile %}
+            <div class="row p-1"><b>Step </b> {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</div>
+
+            {% if shapefile %}
+                <div class="row p-1 pb-5"><b>Shapefile: </b> {{ shapefile }}
+                    ({{ current_file }} of {{ shapes|length }})
+                </div>
+            {% endif %}
+        {% endif %}
+        <form action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {% block form %}
+                {{ wizard.management_form }}
+                {{ wizard.form|crispy }}
+            {% endblock form %}
+            <div class="col-12 p-5">
+                {% if wizard.steps.prev %}
+                    <button class="btn btn-large btn-primary"
+                            name="wizard_goto_step" type="submit"
+                            value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+                    <button class="btn btn-large btn-primary"
+                            name="wizard_goto_step" type="submit"
+                            value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+                {% endif %}
+                <button class="btn btn-large btn-primary"
+                        name="wizard_goto_step" type="submit"
+                        value="submit">{% trans "Next Step" %}</button>
+            </div>
+        </form>
+        <div class="co-12">
+            {% if info %}
+                {{ info.shapefile }}
+                <table class="table">
+                    <tr>
+                        {% for k in info.sample.properties.keys %}
+                            <td>{{ k }}</td>
+                        {% endfor %}
+                    </tr>
+
+                    <tr>
+                        {% for k in info.sample.properties.values %}
+                            <td>{{ k }}</td>
+                        {% endfor %}
+                    </tr>
+
+                </table>
+            {% elif zipfile %}
+                <div>{{ zipfile }} contains {{ shapes|length }} shapefile</div>
+                <ul>
+                    {% for file in shapes %}
+                        <li>{{ file }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+{#    <table>#}
+{#    {% for k,v in data.items %}#}
+{#    <tr><td>{{ k }}</td><td>{{ v }}</td></tr>#}
+{#    {% endfor %}#}
+{#    </table>#}
+{% endblock page %}

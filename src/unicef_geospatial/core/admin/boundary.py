@@ -10,12 +10,13 @@ from ..models import Boundary
 
 @register(BoundaryType)
 class BoundaryTypeAdmin(LeafletGeoAdmin, MPTTModelAdmin):
-    list_display = ('description', 'country', 'parent')
+    list_display = ('name', 'country', 'parent')
     list_filter = ('country', 'admin_level')
 
 
 @register(Boundary)
 class BoundaryAdmin(LeafletGeoAdmin, MPTTModelAdmin):
     search_fields = ('name', 'p_code', 'iso_code_3')
-    list_display = ('name', 'country', 'p_code', 'gender')
-    list_filter = ('country',)
+    list_display = ('name', 'country', 'p_code', 'active', 'boundary_type')
+    list_filter = ('country', 'active', 'boundary_type__level')
+    date_hierarchy = 'valid_from'

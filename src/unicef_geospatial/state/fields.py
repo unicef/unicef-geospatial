@@ -37,6 +37,7 @@ class CreatorUserField(CurrentUserField):
         except Exception:
             return None
 
+
 class ModifierUserField(CurrentUserField):
     def __init__(self, **kwargs):
         kwargs.setdefault('related_name', '+')

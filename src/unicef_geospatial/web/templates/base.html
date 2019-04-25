@@ -1,55 +1,149 @@
-<!DOCTYPE html>{% load static version %}
-<html lang="en">
+{% load static %}<!DOCTYPE html>
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <title>{{ title|default_if_none:"GeoSpatial" }}</title>
-    {% block head %}
-        <link rel="icon" type="image/ico" href="{% static 'favicon.ico' %}">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-        <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}?_={% version %}">
-    {% endblock head %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <title>UNICEF</title>
+
+<link rel="stylesheet" href="{% static "bootstrap.min.css"%}">
+<link rel="stylesheet" href="{% static "style4.css" %}">
+<script defer src="{% static "solid.js" %}"></script>
+<script defer src="{% static "fontawesome.js" %}"></script>
+
+{#    <!-- Bootstrap CSS CDN -->#}
+{#    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"#}
+{#          integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">#}
+{#    <!-- Our Custom CSS -->#}
+{##}
+{#    <!-- Font Awesome JS -->#}
+{#    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/solid.js"#}
+{#            integrity="sha384-tzzSw1/Vo+0N5UhStP3bvwWPq+uvzCMfrN1fEFe+xBmv1C/AtVX5K0uZtmcHitFZ"#}
+{#            crossorigin="anonymous"></script>#}
+{#    <script defer src="https://use.fontawesome.com/releases/v5.0.13/js/fontawesome.js"#}
+{#            integrity="sha384-6OIrr52G08NpOFSZdxxz1xdNSndlD4vdcf/q2myIUVO0VsqaGHJsB0RaBE01VTOY"#}
+{#            crossorigin="anonymous"></script>#}
+
+    <style>
+        #sidebar {
+            background: #4bace9
+        }
+
+        #sidebar .sidebar-header {
+            background: #4bace9;
+
+        }
+        .btn-primary{
+            background-color: #4bace9;
+            border-color: #4bace9;
+        }
+
+    </style>
 </head>
-<body class="{{ page }}">
 
-{% block body %}
-{% block content %}
+<body>
 
-    <div class="limiter">
-        <div class="master-container">
-            <div class="box">
-                <div class="right">
-                    {% block right %}
-                    {% endblock right %}
-
-                </div>
-                {% block left %}
-                    <div class="left">
-                        <img width="600" src="{% static 'unicef_logo2.png' %}">
-                    </div>
-                {% endblock left %}
-            </div>
+<div class="wrapper">
+{% block wrapper %}
+    <!-- Sidebar  -->
+    <nav id="sidebar">
+        <div class="sidebar-header">
+            <h3>GeoSpatial
+                <button type="button" class="btn white toggle" href="#"><i class="fas fa-align-justify"></i>
+                </button>
+            </h3>
+            <strong class="toggle">GS</strong>
         </div>
+
+        <ul class="list-unstyled components">
+            <li class="active">
+            </li>
+
+            <li>
+                <a href="/">
+                    <i class="fas fa-home"></i>
+                    Home
+                </a>
+            </li>
+            {% if user.is_authenticated %}
+            <li>
+                <a href="{% url 'upload' %}">
+                    <i class="fas fa-upload"></i>
+                    Upload
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'admin:index' %}">
+                    <i class="fas fa-cog"></i>
+                    Admin
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
+            </li>
+            {% else %}
+            <li>
+                <a href="{% url 'login' %}">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+
+    <!-- Page Content  -->
+    <div id="content">
+        {% block content %}
+
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav ml-auto">
+                            <li class="nav-item active">
+                                {{ user }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+            <div class="page">
+                {% block page %}
+                {% endblock page %}
+            </div>
+        {% endblock content %}
     </div>
+{% endblock wrapper %}
+</div>
 
+<!-- jQuery CDN - Slim version (=without AJAX) -->
+{#<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"#}
+{#        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"#}
+{#        crossorigin="anonymous"></script>#}
+{#<!-- Popper.JS -->#}
+{#<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"#}
+{#        integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ"#}
+{#        crossorigin="anonymous"></script>#}
+<!-- Bootstrap JS -->
+{#<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"#}
+{#        integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm"#}
+{#        crossorigin="anonymous"></script>#}
 
-{% endblock %}
-{% endblock %}
+<script src="{% static "jquery-3.3.1.min.js" %}"></script>
+<script src="{% static "bootstrap.min.js" %}"></script>
 
-{% block footer %}
-    <hr/>
-    <div style="float: left;padding: 10px">
-        {{ state.request.user }}
-        {% if request.user.is_impersonate %}
-            [<a href="{% url 'impersonate-stop' %}">Back to {{ request.real_user }}</a>]
-        {% endif %}
-
-    </div>
-    <div style="float: right;padding: 10px">
-        Version: {% version %}
-    </div>
-{% endblock footer %}
-{% block bottom_scripts %}
-{% endblock %}
-
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('.toggle').on('click', function () {
+            $('#sidebar').toggleClass('active');
+        });
+    });
+</script>
 </body>
+
 </html>

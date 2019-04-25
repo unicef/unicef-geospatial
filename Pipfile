@@ -8,6 +8,7 @@ bumpversion = "*"
 pre-commit = "*"
 flake8 = "*"
 isort = "*"
+pdbpp = "*"
 
 [packages]
 django = "==2.2b1"
@@ -38,6 +39,11 @@ requests = "*"
 admin-extra-urls = "*"
 drf-yasg = "*"
 django-crispy-forms = "*"
+django-formtools = "*"
+markdown = "*"
+django-cloneable = "*"
+bootstrap-admin = "*"
+django-extensions = "*"
 
 [requires]
 python_version = "3.6"

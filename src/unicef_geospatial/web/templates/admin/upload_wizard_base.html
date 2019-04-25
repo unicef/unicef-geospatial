@@ -1,0 +1,41 @@
+{% extends "base.html" %}{% load static crispy_forms_filters i18n %}
+
+
+{% block content %}
+    <div class="container">
+    <div class="row">Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</div>
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% block form %}
+            {{ wizard.management_form }}
+            {{ wizard.form|crispy }}
+        {% endblock form %}
+        {% if wizard.steps.prev %}
+            <button class="btn btn-large btn-primary"
+                    name="wizard_goto_step" type="submit"
+                    value="{{ wizard.steps.first }}">{% trans "first step" %}</button>
+            <button class="btn btn-large btn-primary"
+                    name="wizard_goto_step" type="submit"
+                    value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+        {% endif %}
+        <button class="btn btn-large btn-primary"
+                name="wizard_goto_step" type="submit"
+                value="submit">{% trans "Next Step" %}</button>
+    </form>
+    {% if zipfile %}
+        <div>{{ zipfile }} contains {{ shapes|length }} shapefile </div>
+        <ul>
+        {% for file in shapes %}
+            <li>{{ file }}</li>
+        {% endfor %}
+        </ul>
+
+{#        <ul>#}
+{#        {% for file in files %}#}
+{#            <li>{{ file }}</li>#}
+{#        {% endfor %}#}
+{#        </ul>#}
+    {% endif %}
+    </div>
+{% endblock content %}
+
