@@ -43,6 +43,7 @@ django-formtools = "*"
 markdown = "*"
 django-cloneable = "*"
 bootstrap-admin = "*"
+django-extensions = "*"
 
 [requires]
 python_version = "3.6"

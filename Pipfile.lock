@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "027e8200f9e36f3afaec26a52086092655bb753354d2ad53e0167261bb8d97a0"
+            "sha256": "359986d04b837d4a1dbe04dbe4c43fde602e6ea7423c67f516a80a5e20d98d19"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -53,11 +53,11 @@
         },
         "celery": {
             "hashes": [
-                "sha256:44129fe6146a7ba96466d42e650f0444497fd9be542f8a9092716d2970804770",
-                "sha256:fe05a3e2873d11990fe7c08319e8ca5bd2d0424b521f40f3d29b891134e5df00"
+                "sha256:8dcfaf39ba25a6830e4e029765a8872489eca7f0162d9bd12962c59da7bf5c9d",
+                "sha256:a394953a4574619efc6bd84015a01649cf12c8123b6003132cad07f36b79aca5"
             ],
             "index": "pypi",
-            "version": "==4.3.0rc2"
+            "version": "==4.3.0rc3"
         },
         "certifi": {
             "hashes": [
@@ -178,6 +178,14 @@
             ],
             "index": "pypi",
             "version": "==0.4.5"
+        },
+        "django-extensions": {
+            "hashes": [
+                "sha256:109004f80b6f45ad1f56addaa59debca91d94aa0dc1cb19678b9364b4fe9b6f4",
+                "sha256:307766e5e6c1caffe76c5d99239d8115d14ae3f7cab2cd991fcffd763dad904b"
+            ],
+            "index": "pypi",
+            "version": "==2.1.6"
         },
         "django-filter": {
             "hashes": [
@@ -580,11 +588,11 @@
         },
         "isort": {
             "hashes": [
-                "sha256:18c796c2cd35eb1a1d3f012a214a542790a1aed95e29768bdcb9f2197eccbd0b",
-                "sha256:96151fca2c6e736503981896495d344781b60d18bfda78dc11b290c6125ebdb6"
+                "sha256:08f8e3f0f0b7249e9fad7e5c41e2113aba44969798a26452ee790c06f155d4ec",
+                "sha256:4e9e9c4bd1acd66cf6c36973f29b031ec752cbfd991c69695e4e259f9a756927"
             ],
             "index": "pypi",
-            "version": "==4.3.15"
+            "version": "==4.3.16"
         },
         "mccabe": {
             "hashes": [
@@ -601,10 +609,10 @@
         },
         "pdbpp": {
             "hashes": [
-                "sha256:62dea08830eea5df685c957de4fac6e7f699ed635dd58975a689432450b3258b"
+                "sha256:565a4ee4b54bd73310058ce439e245230c587774813e394c902a214c3e693d24"
             ],
             "index": "pypi",
-            "version": "==0.9.12"
+            "version": "==0.9.14"
         },
         "pre-commit": {
             "hashes": [

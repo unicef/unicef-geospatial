@@ -46,6 +46,8 @@ INSTALLED_APPS = (
     'django_admin_json_editor',
     'unicef_geospatial.core.apps.Config',
     'unicef_geospatial.web.apps.Config',
+
+    'django_extensions',
 )
 # DJANGO: SECURITY
 ALLOWED_HOSTS = [
