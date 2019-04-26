@@ -1,7 +1,8 @@
 from django.contrib.gis.db.models.functions import Area, Intersection, Transform
-from django.db.models import Q, Sum
+from django.db.models import Sum
 
 from unicef_geospatial.core.models import Boundary, BoundaryType, Country
+from unicef_geospatial.core.models.mixins import GeoModel
 
 
 def consistency_validation(country_iso_code_2, admin_level):
@@ -9,20 +10,29 @@ def consistency_validation(country_iso_code_2, admin_level):
     country = Country.objects.get(iso_code2=country_iso_code_2)
 
     bts = BoundaryType.objects.filter(country=country, level=admin_level)
-    null_name_err = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Pending Approval') & (Q(name='') | (Q(name__isnull=True))))  # list new Boundaries with null names
-    null_pc_err = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Pending Approval') & (Q(p_code='') | (Q(p_code__isnull=True))))  # list new Boundaries with null pcodes
-    null_ppc_err = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Pending Approval') & Q(parent__isnull=True))  # list new Boundaries with null parents
-    invalid_geom_err = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Pending Approval') & Q(geom__isvalid=False))  # list new Boundaries with invalid geometry
+    pending_boundaries = Boundary.objects.filter(boundary_type__in=bts, state=GeoModel.PENDING_APPROVAL)
+    pending_without_name = pending_boundaries.filter(name='')  # list new Boundaries with null name
+    pending_without_pcode = pending_boundaries.filter(p_code__in=['', None])
+    pending_without_parent = pending_boundaries.filter(parent__isnull=True)
+    pending_invalid_geometry = pending_boundaries.filter(geom__isvalid=False)
 
-    cntry_bts = BoundaryType.objects.filter(country=country, level=0)
-    cntry_boundary = Boundary.objects.filter(Q(boundary_type__in=cntry_bts) & Q(state='Pending Approval')).first()
-    outside_parent_err = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Pending Approval') & ~Q(geom__coveredby=cntry_boundary.geom))  # list new Boundaries that are not completely covered by the country Boundary
+    bt0 = BoundaryType.objects.filter(country=country, level=0)
+    pending_country = Boundary.objects.filter(boundary_type__in=bt0, state='Pending Approval').first()  # why from pending?
+    pending_outside_country = pending_boundaries.exclude(geom__coveredby=pending_country.geom)
 
-    btp = [btp.id for btp in BoundaryType.objects.filter(country=country, level=admin_level - 1)]  # get parent Boundary Types
-    new_parent_boundaries = Boundary.objects.filter(Q(boundary_type_id__in=btp) & Q(state='Pending Approval'))  # get parent Boundaries
+    print('Pending Issues')
+    print('--------------')
+    print('No Name', pending_without_name)
+    print('No PCode', pending_without_pcode)
+    print('No Parent', pending_without_parent)
+    print('Invalid Geometry', pending_invalid_geometry)
+    print('Outside Country', pending_outside_country)
 
-    new_boundaries = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Pending Approval'))
-    old_boundaries = Boundary.objects.filter(Q(boundary_type__in=bts) & Q(state='Active'))
+    parent_boundary = BoundaryType.objects.filter(country=country, level=admin_level - 1)
+    new_parent_boundaries = Boundary.objects.filter(boundary_type__in=parent_boundary, state=GeoModel.PENDING_APPROVAL)  # get parent Boundaries
+
+    new_boundaries = Boundary.objects.filter(boundary_type__in=bts, state=GeoModel.PENDING_APPROVAL)
+    old_boundaries = Boundary.objects.filter(boundary_type__in=bts, state=GeoModel.ACTIVE)
 
     for nb in new_boundaries:
         # check for overlaps
@@ -63,11 +73,3 @@ def consistency_validation(country_iso_code_2, admin_level):
     area_diff_threshold = 1
     if abs(total_area_new - total_area_old) > area_diff_threshold:
         print('Warning: different total area of the new dataset! Total area of features at level {}:, old: {:+.2f}, new: {:+.2f}'.format(admin_level, total_area_old, total_area_new))
-
-    print(null_name_err)
-    print(null_pc_err)
-    print(null_ppc_err)
-    print(invalid_geom_err)
-
-    print(cntry_boundary)
-    print(outside_parent_err)
