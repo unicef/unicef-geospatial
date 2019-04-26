@@ -1,6 +1,6 @@
-from .boundary import BoundaryAdmin, BoundaryTypeAdmin
-from .category import CategoryAdmin
-from .country import CountryAdmin
-from .location import LocationAdmin
-from .mapping import ConfigMapAdmin, FieldMapAdmin
-from .upload import UploadAdmin, UploadFieldMap
+from .boundary import BoundaryAdmin, BoundaryTypeAdmin  # noqa
+from .category import CategoryAdmin  # noqa
+from .country import CountryAdmin  # noqa
+from .location import LocationAdmin  # noqa
+from .mapping import ConfigMapAdmin, FieldMapAdmin  # noqa
+from .upload import UploadAdmin, UploadFieldMap  # noqa

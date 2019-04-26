@@ -40,5 +40,6 @@ def check_overlapping(admin_level, country_iso_code_2):
             geomsim_old = (intersect_geom.area / old_boundary.geom.area * 100)
             geomsim_new = (intersect_geom.area / best_match.geom.area * 100)
 
+        name_sim, centr_dist, geomsim_new, geomsim_old
         # ToDo:
         # - write old and new uuids, names, pcodes and similarities (name and geometry) to the remap table
