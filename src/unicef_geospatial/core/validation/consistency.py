@@ -36,14 +36,15 @@ def consistency_validation(country_iso_code_2, admin_level):
 
     for nb in new_boundaries:
         # check for overlaps
-        overlap_area = new_boundaries.filter(geom__intersects=nb.geom).exclude(pk=nb.pk).annotate(intersection=Intersection('geom', nb.geom)).aggregate(Sum(Area('intersection')))
-
-        # debug mode
+        overlapping_boundaries = new_boundaries.filter(geom__intersects=nb.geom).exclude(pk=nb.pk)
+        overlap_area = overlapping_boundaries.annotate(
+            intersection=Intersection('geom', nb.geom)).aggregate(Sum(Area('intersection')))
         print(nb.name, overlap_area)
-        overlaps = new_boundaries.filter(geom__intersects=nb.geom).exclude(pk=nb.pk).annotate(intersection=Transform(Intersection('geom', nb.geom), 3857)).order_by(Area('intersection'))
+
+        overlaps = overlapping_boundaries.annotate(intersection=Transform(Intersection('geom', nb.geom), 3857)).order_by(Area('intersection'))
         for ov in overlaps:
-            ov.name, ov.intersection.area, ov.geom.area
-        #######
+            print(ov.name, ov.intersection.area, ov.geom.area)
+
         # check parents
         parent = Boundary.objects.get(pk=nb.parent_id)
         if admin_level:
@@ -65,11 +66,15 @@ def consistency_validation(country_iso_code_2, admin_level):
                 if parent.p_code != found_parent.p_code:
                     print('Warning - wrong parent Pcode provided for {}'.format(nb))
 
-    if len(new_boundaries) != len(old_boundaries):
-        print('Warning: different number of features in new dataset! Count of features at level {}:, old: {}, new: {}'.format(admin_level, len(old_boundaries), len(new_boundaries)))
+    if new_boundaries.count() != old_boundaries.count():
+        print('Warning: different number of features in new dataset!')
+        print('Count of features at level {}:, old: {}, new: {}'.format(
+            admin_level, len(old_boundaries), len(new_boundaries)))
 
     total_area_new = new_boundaries.aggregate(Sum(Area(Transform('geom', 3857))))['Area__sum'].sq_km
     total_area_old = old_boundaries.aggregate(Sum(Area(Transform('geom', 3857))))['Area__sum'].sq_km
     area_diff_threshold = 1
     if abs(total_area_new - total_area_old) > area_diff_threshold:
-        print('Warning: different total area of the new dataset! Total area of features at level {}:, old: {:+.2f}, new: {:+.2f}'.format(admin_level, total_area_old, total_area_new))
+        print('Warning: different total area of the new dataset!')
+        print(' Total area of features at level {}:, old: {:+.2f}, new: {:+.2f}'.format(
+            admin_level, total_area_old, total_area_new))
