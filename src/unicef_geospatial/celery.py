@@ -3,7 +3,7 @@ import os
 
 from celery import Celery
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'etools_datamart.config.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unicef_geospatial.config.settings')
 
 
 class DatamartCelery(Celery):

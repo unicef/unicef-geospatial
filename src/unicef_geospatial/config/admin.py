@@ -26,7 +26,7 @@ class AdminSite(_AdminSite):
     def index(self, request, extra_context=None):
         style = request.COOKIES.get('old_index_style', 0)
         if style in [1, "1"]:
-            return super(AdminSite, self).index(request, {'index_style': 0})
+            return super().index(request, {'index_style': 0})
         else:
             return self.index_new(request, {'index_style': 1})
 

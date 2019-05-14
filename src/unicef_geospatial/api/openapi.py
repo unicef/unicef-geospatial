@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # flake8: noqa E501
 
 from drf_yasg import openapi
@@ -11,7 +10,7 @@ description = """
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="eTools Datamart API",
+        title="Geospatial Datamart API",
         default_version='v1',
         description=description,
         # terms_of_service="https://",
