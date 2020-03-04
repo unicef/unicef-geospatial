@@ -44,7 +44,10 @@ class TimeFramedMixin(models.Model):
 
 
 class GeoModel(TimeFramedMixin):
-    STATES = ('Pending Approval', 'Active', 'Archived')
+    PENDING_APPROVAL = 'Pending Approval'
+    ACTIVE = 'Active'
+    ARCHIVED = 'Archived'
+    STATES = (PENDING_APPROVAL, ACTIVE, ARCHIVED)
 
     state = FSMField(default='Active',
                      verbose_name='Record State',
